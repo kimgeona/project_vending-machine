@@ -1,0 +1,7 @@
+# folder
+build/
+src_io/
+
+# MacOS ignore
+.DS_Store
+# Windows ignore
