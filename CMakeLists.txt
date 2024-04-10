@@ -8,9 +8,8 @@ project(
 )
 
 # ==== 패키지 ====
-find_package(OpenCV)
-# OpenCV include_dir : ${OpenCV_INCLUDE_DIRS}
-# OpenCV Library : ${OpenCV_LIBS}
+find_package(PkgConfig REQUIRED)                        # 외부 시스템에서 패키지 검색
+pkg_check_modules(GTK4 REQUIRED IMPORTED_TARGET gtk4)   # 패키지를 타겟 형태로 불러오기
 
 # ==== C++ 표준 설정 ====
 set(CMAKE_CXX_STANDARD 17)
@@ -20,6 +19,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # ==== include 디렉토리 설정 ====
 include_directories(
     ./include
+    PkgConfig::GTK4_INCLUDE_DIRS
 )
 
 # ==== 파일 조사, 타겟 생성 ====
