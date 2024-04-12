@@ -12,5 +12,5 @@ add_library(my_library ${INCLUDE_LIST} ${LIB_LIST})
 # my_library 의 의존성 라이브러리
 target_link_libraries(
     my_library PRIVATE
-    PkgConfig::GTK4
+    PkgConfig::gtkmm4
 )

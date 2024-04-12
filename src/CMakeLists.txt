@@ -13,5 +13,5 @@ add_executable(my_program ${INCLUDE_LIST} ${SRC_LIST})
 target_link_libraries(
     my_program PRIVATE
     my_library
-    PkgConfig::GTK4
+    PkgConfig::gtkmm4
 )

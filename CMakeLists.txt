@@ -8,8 +8,8 @@ project(
 )
 
 # ==== 패키지 ====
-find_package(PkgConfig REQUIRED)                        # 외부 시스템에서 패키지 검색
-pkg_check_modules(GTK4 REQUIRED IMPORTED_TARGET gtk4)   # 패키지를 타겟 형태로 불러오기
+find_package(PkgConfig REQUIRED)                                # 외부 시스템에서 패키지 검색
+pkg_check_modules(gtkmm4 REQUIRED IMPORTED_TARGET gtkmm-4.0)    # 패키지를 타겟 형태로 불러오기
 
 # ==== C++ 표준 설정 ====
 set(CMAKE_CXX_STANDARD 17)
