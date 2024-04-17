@@ -17,5 +17,9 @@ int main(int argc, char* argv[])
     auto app_LoginPage = Gtk::Application::create("kimgeona.VendingMachine.LoginPage");
     e2 = app_LoginPage->make_window_and_run<gui::LoginPage>(argc, argv);
     
+    // 자판기 어플리케이션 관리자 페이지 실행
+    auto app_AdministratorPage = Gtk::Application::create("kimgeona.VendingMachine.AdministratorPage");
+    e3 = app_AdministratorPage->make_window_and_run<gui::AdministratorPage>(argc, argv);
+    
     return e1 || e2 || e3;
 }
