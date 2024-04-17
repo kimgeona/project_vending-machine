@@ -4,5 +4,6 @@
 
 // 나의 라이브러리
 #include <gui_MainPage.hpp>
+#include <gui_LoginPage.hpp>
 
 #endif /* gui_hpp */
