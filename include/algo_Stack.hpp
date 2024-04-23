@@ -58,7 +58,7 @@ template <class T> Stack<T>::Stack(const Stack& other)
     data = new T[total_capacity];
     
     // 데이터 복사
-    for (int i=0; i<pre+1; i++) data[i] = other.data[i];
+    for (int i=0; i<total_capacity; i++) data[i] = other.data[i];
 }
 template <class T> Stack<T>::Stack(const std::initializer_list<T>& element_list)
 {
@@ -157,30 +157,28 @@ template <class T> void    Stack<T>::clear(void)
 // 연산자 함수
 template <class T> Stack<T>&  Stack<T>::operator=(const Stack& other)
 {
-    // 현재 객체 초기화
-    clear();
-    
     // 스택 정보 복사
     pre = other.pre;
     total_capacity = other.total_capacity;
     
     // 데이터 공간 확보
+    delete [] data;
     data = new T[total_capacity];
     
     // 데이터 복사
-    for (int i=0; i<pre+1; i++) data[i] = other.data[i];
+    for (int i=0; i<total_capacity; i++) data[i] = other.data[i];
+    
+    return *this;
 }
 template <class T> Stack<T>&  Stack<T>::operator=(const std::initializer_list<T>& element_list)
 {
-    // 현재 객체 초기화
-    clear();
-    
     // {} 내용물이 없는 경우
     if (element_list.size() < 1)
     {
         // 기본 생성자와 동일
         pre = -1;
         total_capacity = 2;
+        delete [] data;
         data = new T[total_capacity];
     }
     
@@ -190,6 +188,7 @@ template <class T> Stack<T>&  Stack<T>::operator=(const std::initializer_list<T>
         // element_list 크기 만큼 스택 생성
         pre = -1;
         total_capacity = (int)element_list.size();
+        delete [] data;
         data = new T[total_capacity];
         
         // 데이터 복사
@@ -198,6 +197,7 @@ template <class T> Stack<T>&  Stack<T>::operator=(const std::initializer_list<T>
     
     return *this;
 }
+
 
 }
 
