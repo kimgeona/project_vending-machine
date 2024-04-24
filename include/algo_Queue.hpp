@@ -39,14 +39,6 @@ public:
     // 연산자 함수
     Queue&  operator=(const Queue& other);                             // 복사 연산자
     Queue&  operator=(const std::initializer_list<T>& element_list);   // 복사 연산자
-    
-    void    print_status(void){
-        using namespace std;
-        
-        cout << "==>";
-        for (int i=0; i<capacity(); i++) cout << " " << data[i];
-        cout << endl;
-    }
 };
 
 
