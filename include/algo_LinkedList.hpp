@@ -54,22 +54,6 @@ public:
     // 연산자 함수
     LinkedList&  operator=(const LinkedList& other);                        // 복사 연산자
     LinkedList&  operator=(const std::initializer_list<T>& element_list);   // 초기화 리스트 연산자
-    
-    void print_element()
-    {
-        using namespace std;
-        
-        cout << "==>";
-        
-        Node<T>* pre = data;
-        
-        while (pre)
-        {
-            cout << " " << pre->data;
-            pre = pre->back;
-        }
-        cout << endl;
-    }
 };
 
 
