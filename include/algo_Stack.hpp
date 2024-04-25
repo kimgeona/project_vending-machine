@@ -82,8 +82,6 @@ template <class T> Stack<T>::Stack(const std::initializer_list<T>& element_list)
         // 데이터 복사
         for (auto& element : element_list) data[++pre] = element;
     }
-    
-    return *this;
 }
 
 // 소멸자
