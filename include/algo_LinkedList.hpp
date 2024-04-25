@@ -4,7 +4,6 @@
 
 // c++17
 #include <initializer_list>
-#include <iostream>
 
 namespace algo
 {
