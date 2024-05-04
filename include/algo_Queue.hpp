@@ -39,6 +39,7 @@ public:
     // 연산자 함수
     Queue&  operator=(const Queue& other);                             // 복사 연산자
     Queue&  operator=(const std::initializer_list<T>& element_list);   // 복사 연산자
+    T       operator[](int n);
 };
 
 
@@ -240,6 +241,20 @@ template <class T> Queue<T>&  Queue<T>::operator=(const std::initializer_list<T>
     }
     
     return *this;
+}
+template <class T> T          Queue<T>::operator[](int n)
+{
+    // 음수 부호 변경
+    if (n<0) n = size() + n;
+    
+    // 범위 확인
+    if ((n < 0) || (n > size()-1))
+    {
+        throw std::out_of_range("Queue<>::[]: out of range");
+    }
+    
+    // n 번째 요소 반환
+    return data[crop_to_range(pre_out+n)];
 }
 
 

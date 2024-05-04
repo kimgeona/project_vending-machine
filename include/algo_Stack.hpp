@@ -38,6 +38,7 @@ public:
     // 연산자 함수
     Stack&  operator=(const Stack& other);                             // 복사 연산자
     Stack&  operator=(const std::initializer_list<T>& element_list);   // 복사 연산자
+    T       operator[](int n);
 };
 
 
@@ -194,6 +195,20 @@ template <class T> Stack<T>&  Stack<T>::operator=(const std::initializer_list<T>
     }
     
     return *this;
+}
+template <class T> T          Stack<T>::operator[](int n)
+{
+    // 음수 부호 변경
+    if (n<0) n = size() + n;
+    
+    // 범위 확인
+    if ((n < 0) || (n > size()-1))
+    {
+        throw std::out_of_range("Stack<>::[]: out of range");
+    }
+    
+    // n 번째 요소 반환
+    return data[n];
 }
 
 

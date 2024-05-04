@@ -53,6 +53,7 @@ public:
     // 연산자 함수
     LinkedList&  operator=(const LinkedList& other);                        // 복사 연산자
     LinkedList&  operator=(const std::initializer_list<T>& element_list);   // 초기화 리스트 연산자
+    T            operator[](int n);
 };
 
 
@@ -305,6 +306,22 @@ template <class T> LinkedList<T>&  LinkedList<T>::operator=(const std::initializ
     }
     
     return *this;
+}
+template <class T> T               LinkedList<T>::operator[](int n)
+{
+    // 음수 부호 변경
+    if (n<0) n = size() + n;
+    
+    // 범위 확인
+    if ((n < 0) || (n > size()-1))
+    {
+        throw std::out_of_range("LinkedList<>::[]: out of range");
+    }
+    
+    // n 번째 요소 반환
+    Node<T>* pre = data;
+    for (int i=0; i<n; i++) pre = pre->back;
+    return pre->data;
 }
 
 
