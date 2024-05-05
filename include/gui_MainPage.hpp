@@ -65,6 +65,7 @@ protected:
     Gtk::Button bt1;
     Gtk::Button bt2;
     Gtk::Button bt3;
+    Gtk::Button bt4;
     MyGridPurchase gd;
 };
 class MyGridAll         : public Gtk::Grid

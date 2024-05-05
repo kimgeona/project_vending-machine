@@ -74,7 +74,7 @@ bt2("50"),
 bt3("100"),
 bt4("500"),
 bt5("1000"),
-bt6("구매")
+bt6("반환")
 {
     // MyGridPurchase 설정
     set_expand();
@@ -101,7 +101,8 @@ bt6("구매")
 MyGridSidebar::MyGridSidebar() :
 bt1("상태 메시지"),
 bt2("투입된 금액"),
-bt3("관리자 메뉴")
+bt3("구매"),
+bt4("관리자")
 {
     // MyGridSidebar 설정
     set_expand();
@@ -114,14 +115,16 @@ bt3("관리자 메뉴")
     bt1.set_expand();
     bt2.set_expand();
     bt3.set_expand();
+    //bt4.set_expand();
     bt1.set_sensitive(false);
     bt2.set_sensitive(false);
     
     // child 위젯 붙이기
-    attach(bt1, 0, 0, 1, 1);
-    attach(bt2, 0, 1, 1, 3);
-    attach(gd, 0, 4, 1, 3);
+    attach(bt1, 0, 0, 2, 1);
+    attach(bt2, 0, 1, 2, 3);
+    attach(gd, 0, 4, 2, 3);
     attach(bt3, 0, 9, 1, 1);
+    attach(bt4, 1, 9, 1, 1);
 }
 
 MyGridAll::MyGridAll()
