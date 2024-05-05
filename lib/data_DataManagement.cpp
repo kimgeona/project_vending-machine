@@ -28,19 +28,19 @@ DataManagement::DataManagement(std::string backup_dir)
         PW = "admin";
         
         // 음료 생성
-        for (int i=0; i<10; i++) drinks[0].push_back(Drink("물", 450));
-        for (int i=0; i<10; i++) drinks[1].push_back(Drink("커피", 500));
-        for (int i=0; i<10; i++) drinks[2].push_back(Drink("이온음료", 550));
-        for (int i=0; i<10; i++) drinks[3].push_back(Drink("고급커피", 700));
-        for (int i=0; i<10; i++) drinks[4].push_back(Drink("탄산음료", 750));
-        for (int i=0; i<10; i++) drinks[5].push_back(Drink("특화음료", 800));
+        for (int i=0; i<10; i++) slot_drink[0].push_back(Drink("물", 450));
+        for (int i=0; i<10; i++) slot_drink[1].push_back(Drink("커피", 500));
+        for (int i=0; i<10; i++) slot_drink[2].push_back(Drink("이온음료", 550));
+        for (int i=0; i<10; i++) slot_drink[3].push_back(Drink("고급커피", 700));
+        for (int i=0; i<10; i++) slot_drink[4].push_back(Drink("탄산음료", 750));
+        for (int i=0; i<10; i++) slot_drink[5].push_back(Drink("특화음료", 800));
         
         // 잔돈 생성
-        for (int i=0; i<10; i++) coins[0].push(Coin(10, 2024));
-        for (int i=0; i<10; i++) coins[1].push(Coin(50, 2024));
-        for (int i=0; i<10; i++) coins[2].push(Coin(100, 2024));
-        for (int i=0; i<10; i++) coins[3].push(Coin(500, 2024));
-        for (int i=0; i<10; i++) coins[4].push(Coin(1000, 2024));
+        for (int i=0; i<10; i++) slot_coin[0].push(Coin(10, 2024));
+        for (int i=0; i<10; i++) slot_coin[1].push(Coin(50, 2024));
+        for (int i=0; i<10; i++) slot_coin[2].push(Coin(100, 2024));
+        for (int i=0; i<10; i++) slot_coin[3].push(Coin(500, 2024));
+        for (int i=0; i<10; i++) slot_coin[4].push(Coin(1000, 2024));
         
         // 데이터 저장
         save();
@@ -90,7 +90,7 @@ void DataManagement::load()
             vector<string> type = util::my_split(words[0], "-");
             vector<string> data = util::my_split(words[1], "-");
             
-            drinks[stoi(type[1])].push_back(Drink(data[0], stoi(data[1])));
+            slot_drink[stoi(type[1])].push_back(Drink(data[0], stoi(data[1])));
             
             continue;
         }
@@ -101,7 +101,7 @@ void DataManagement::load()
             vector<string> type = util::my_split(words[0], "-");
             vector<string> data = util::my_split(words[1], "-");
             
-            coins[stoi(type[1])].push(Coin(stoi(data[0]), stoi(data[1])));
+            slot_coin[stoi(type[1])].push(Coin(stoi(data[0]), stoi(data[1])));
             
             continue;
         }
@@ -130,14 +130,22 @@ void DataManagement::save()
     
     // 음료 정보 저장
     for (int i=0; i<6; i++)
-        for (int j=0; j<drinks[i].size(); j++)
-            fout << "drink-" << i << "-" << j << "=" << drinks[i][j].name << "-" << drinks[i][j].price << endl;
+        for (int j=0; j<slot_drink[i].size(); j++)
+        {
+            fout << "drink-" << i << "-" << j;
+            fout << "=";
+            fout << slot_drink[i][j].name << "-" << slot_drink[i][j].price << endl;
+        }
     fout << endl;
     
     // 잔돈 정보 저장
     for (int i=0; i<5; i++)
-        for (int j=0; j<coins[i].size(); j++)
-            fout << "coin-" << i << "-" << j << "=" << coins[i][j].amount << "-" << coins[i][j].banknote << endl;
+        for (int j=0; j<slot_coin[i].size(); j++)
+        {
+            fout << "coin-" << i << "-" << j;
+            fout << "=";
+            fout << slot_coin[i][j].amount << "-" << slot_coin[i][j].banknote << endl;
+        }
     fout << endl;
     
     // 파일 스트림 닫기

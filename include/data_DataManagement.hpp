@@ -22,49 +22,58 @@ class DataManagement
 {
 private:
     // 자판기 데이터 경로
-    std::filesystem::path dir;
+    std::filesystem::path   dir;            // 데이터 저장 주소
     
     // 사용자 계정
     std::string             ID;             // 계정 ID
     std::string             PW;             // 계정 PW
     
     // 재고
-    algo::LinkedList<Drink> drinks[6];      // 자판기 음료
-    algo::Stack<Coin>       coins[5];       // 자판기 거스름돈
+    algo::LinkedList<Drink> slot_drink[6];  // 자판기 음료
+    algo::Stack<Coin>       slot_coin[5];   // 자판기 거스름돈
     
     // 버퍼
-    algo::Queue<Drink>      vm_out_drinks;  // 음료 출구
-    algo::Queue<Coin>       vm_out_coins;   // 거스름돈 출구
-    algo::Queue<Coin>       vm_in_coins;    // 동전 입구
+    algo::Queue<Drink>      buf_out_drink;  // 음료 출구
+    algo::Queue<Coin>       buf_out_coin;   // 거스름돈 출구
+    algo::Queue<Coin>       buf_in_coin;    // 동전 입구
     
-    // 데이터 불러오기 및 저장
-    void load();
-    void save();
-    
+    // 구매 관련 변수
+    int selected_drink;     // 선택된 음료 번호
+    int inserted_coins;     // 투입된 금액
+
 public:
     // 생성자
     DataManagement();
     DataManagement(std::string);
     
-    // MainPage
-    void select_drink(int n);               // 음료 선택
-    void select_cash(int n);                // 금액 입력
-    void take_drink(void);                  // 음료 가져가기
-    void take_change(void);                 // 거스름돈 가져가기
-    void purchase(void);                    // 구매
-    void open_administrator_page(void);     // 관리자 메뉴 열기
+    // 데이터 관련
+    void load();    // 데이터 불러오기
+    void save();    // 데이터 저장
     
-    // LoginPage
-    bool login(std::string id, std::string pw); // 로그인
+    // 재고 관리
+    void push_drink(int slot_number, Drink& drink); // 음료 채우기
+    void push_coin(int slot_number, Coin& coin);    // 동전 채우기
+    void pop_drink(int slot_number);                // 음료 빼기
+    void pop_coin(int slot_number);                 // 동전 빼기
     
-    // AdministratorPage
-    std::string modify_id(std::string);                     // 사용자 이름 변경
-    std::string modify_pw(std::string);                     // 비밀번호 변경
-    std::string modify_drink_name(int n, std::string);      // 음료 이름 변경
-    std::string modify_drink_price(int n, std::string);     // 음료 가격 수정
-    std::string modify_drink_stock(int n, std::string);     // 음료 갯수 변경
-    std::string modify_cash_changes(int n, std::string);    // 잔돈 갯수 변경
-    void        collect_changes(void);                      // 잔돈 수금
+    // 구매 관련
+    void select_drink(int slot_number);     // 1. 음료 선택
+    void insert_coin(const Coin& coin);     // 2. 금액 투입
+    void purchase();                        // 3. 구입 & 거스름돈 반환
+    void return_change();                   // *. 거스름돈 반환
+    
+    // 자판기 상태 출력
+    void print_status();
+    
+    // 관리자 설정
+    void collect_changes(void);     // 잔돈 수금
+    std::string sales();            // 매출 계산
+    
+    // 데이터 수정
+    std::string modify_id(std::string);     // 관리자 이름 변경
+    std::string modify_pw(std::string);     // 관리자 비밀번호 변경
+    std::string modify_drink_name(int slot_number, std::string name);   // 음료 이름 변경
+    std::string modify_drink_price(int slot_number, int price);         // 음료 가격 변경
 };
 
 
