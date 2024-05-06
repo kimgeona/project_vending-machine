@@ -5,6 +5,12 @@
 // c++17
 #include <gtkmm.h>
 
+// 나의 라이브러리
+#include <data.hpp>
+
+// 전역 변수
+extern data::DataManagement dm;
+
 namespace gui
 {
 

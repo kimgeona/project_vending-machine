@@ -4,31 +4,31 @@ namespace gui
 {
 
 
-MyButtonMenu::MyButtonMenu(Glib::ustring name, Glib::ustring price) :
+MyButtonMenu::MyButtonMenu(Glib::ustring label1, Glib::ustring label2) :
 box(Gtk::Orientation::VERTICAL),
-labelName(name),
-labelPrice(price)
+lb1(label1),
+lb2(label2)
 {
     // MyButtonMenu 설정
     set_expand();
     set_child(box);
     
     // box 설정
-    box.append(labelName);
-    box.append(labelPrice);
+    box.append(lb1);
+    box.append(lb2);
     
     // label 설정
-    labelName.set_expand();
-    labelPrice.set_expand();
+    lb1.set_expand();
+    lb2.set_expand();
 }
 
 MyGridMenu::MyGridMenu() :
-bt1("물", "450"),
-bt2("커피", "500"),
-bt3("이온음료", "550"),
-bt4("고급커피", "700"),
-bt5("탄산음료", "750"),
-bt6("특화음료", "800")
+bt1(dm.get_drink_name(0), dm.get_drink_price(0)),
+bt2(dm.get_drink_name(1), dm.get_drink_price(1)),
+bt3(dm.get_drink_name(2), dm.get_drink_price(2)),
+bt4(dm.get_drink_name(3), dm.get_drink_price(3)),
+bt5(dm.get_drink_name(4), dm.get_drink_price(4)),
+bt6(dm.get_drink_name(5), dm.get_drink_price(5))
 {
     // MyGridMenu 설정
     set_expand();
@@ -45,6 +45,9 @@ bt6("특화음료", "800")
     attach(bt4, 0, 1);
     attach(bt5, 1, 1);
     attach(bt6, 2, 1);
+    
+    // signal 연결
+    bt1.signal_clicked()
 }
 
 MyGridReturnTray::MyGridReturnTray() :
@@ -99,9 +102,9 @@ bt6("반환")
 }
 
 MyGridSidebar::MyGridSidebar() :
-bt1("상태 메시지"),
-bt2("선택한 음료"),
-bt3("투입된 금액"),
+bt1(dm.get_status_message()),
+bt2("선택한 음료", dm.get_selected_drink()),
+bt3("투입된 금액", dm.get_inserted_coins()),
 bt4("구매"),
 bt5("관리자")
 {
@@ -168,10 +171,10 @@ fm(9.0/5.0)
     set_child(fm);
 }
 
-void MyButtonMenu::set_name_and_price(Glib::ustring name, Glib::ustring price)
+void MyButtonMenu::set_label(Glib::ustring label1, Glib::ustring label2)
 {
-    labelName.set_text(name);
-    labelPrice.set_text(price);
+    lb1.set_text(label1);
+    lb2.set_text(label2);
 }
 
 

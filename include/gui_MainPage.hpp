@@ -5,19 +5,26 @@
 // c++17
 #include <gtkmm.h>
 
-namespace gui {
+// 나의 라이브러리
+#include <data.hpp>
+
+// 전역 변수
+extern data::DataManagement dm;
+
+namespace gui
+{
 
 
 class MyButtonMenu      : public Gtk::Button
 {
 public:
-    MyButtonMenu(Glib::ustring name, Glib::ustring price);
-    void set_name_and_price(Glib::ustring name, Glib::ustring price);
+    MyButtonMenu(Glib::ustring label1, Glib::ustring label2);
+    void set_label(Glib::ustring label1, Glib::ustring label2);
     
 protected:
     Gtk::Box    box;
-    Gtk::Label  labelName;
-    Gtk::Label  labelPrice;
+    Gtk::Label  lb1;
+    Gtk::Label  lb2;
 };
 
 
@@ -63,8 +70,8 @@ public:
     
 protected:
     Gtk::Button bt1;
-    Gtk::Button bt2;
-    Gtk::Button bt3;
+    MyButtonMenu bt2;
+    MyButtonMenu bt3;
     Gtk::Button bt4;
     Gtk::Button bt5;
     MyGridPurchase gd;
