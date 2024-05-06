@@ -164,7 +164,9 @@ template <class T> int     Queue<T>::size(void)
     {
         int tmp1 = pre_out + capacity();
         int tmp2 = pre_in + capacity();
-        return abs(tmp2 - tmp1);
+        
+        if (tmp1 > tmp2)    return capacity() - abs(tmp2 - tmp1);
+        else                return abs(tmp2 - tmp1);
     }
 }
 template <class T> int     Queue<T>::capacity(void)
