@@ -38,8 +38,9 @@ private:
     algo::Queue<Coin>       buf_in_coin;    // 동전 입구
     
     // 구매 관련 변수
-    int selected_drink;     // 선택된 음료 번호
-    int inserted_coins;     // 투입된 금액
+    int selected_drink;         // 선택된 음료 번호
+    int inserted_coins;         // 투입된 금액
+    int inserted_paper_count;   // 투입된 지폐 갯수
 
 public:
     // 생성자
@@ -57,11 +58,17 @@ public:
     void pop_coin(int slot_number);                 // 동전 빼기
     
     // 구매 관련
-    void select_drink(int slot_number);     // 1. 음료 선택
+    void select_drink(int slot_number);     // 1. 음료 선택 (한번 더 누르면 취소)
     void insert_coin(const Coin& coin);     // 2. 금액 투입
     void purchase();                        // 3. 구입 & 거스름돈 반환
-    void return_change();                   // *. 거스름돈 반환
+    void return_coin();                     // *. 투입된 금액 반환
     
+private:
+    // 구매 관련 : private
+    uint64_t    calculate_change(uint64_t amount);  // *. 거스름돈 계산
+    void        return_change(uint64_t changes);    // *. 거스름돈 반환
+    
+public:
     // 자판기 상태 출력
     void print_status();
     

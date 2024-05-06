@@ -4,6 +4,20 @@ namespace data
 {
 
 
+// 생성자
+DataManagement::DataManagement()
+{
+    using namespace std;
+    using namespace std::filesystem;
+    
+    // 자판기 데이터 경로
+    dir = path("");
+    ID = "";
+    PW = "";
+    selected_drink = -1;
+    inserted_coins = -1;
+    inserted_paper_count = -1;
+}
 DataManagement::DataManagement(std::string backup_dir)
 {
     using namespace std;
@@ -12,15 +26,18 @@ DataManagement::DataManagement(std::string backup_dir)
     // 자판기 데이터 경로 저장
     dir = path(backup_dir);
     
-    // 경로 확인
+    // 자판기 데이터 불러오기
     if (exists(dir) && is_regular_file(dir))
     {
+        // 자판기 데이터 존재
         cout << "|  data::DataManagement : 자판기 데이터를 불러옵니다." << endl;
         
         // 데이터 불러오기
         load();
     }
-    else {
+    else
+    {
+        // 자판기 데이터가 없다면
         cout << "|  data::DataManagement : 자판기를 새로 생성합니다." << endl;
         
         // 사용자 계정 생성
@@ -45,9 +62,16 @@ DataManagement::DataManagement(std::string backup_dir)
         // 데이터 저장
         save();
     }
+    
+    // 구매 관련 변수 초기화
+    selected_drink = -1;
+    inserted_coins = 0;
+    inserted_paper_count = 0;
+    
     cout << "|  data::DataManagement : 완료." << endl;
 }
 
+// 데이터 관련
 void DataManagement::load()
 {
     using namespace std;
@@ -152,5 +176,269 @@ void DataManagement::save()
     fout.close();
 }
 
+// 재고 관리
+void DataManagement::push_drink(int slot_number, Drink& drink)
+{
+    slot_drink[slot_number].push_back(drink);
+}
+void DataManagement::push_coin(int slot_number, Coin& coin)
+{
+    slot_coin[slot_number].push(coin);
+}
+void DataManagement::pop_drink(int slot_number)
+{
+    if (slot_drink[slot_number].size() > 0)
+    {
+        buf_out_drink.push(slot_drink[slot_number].pop_front());
+    }
+    else
+    {
+        std::cout << "|  data::DataManagement : 더 이상 빼낼 음료수가 없습니다." << std::endl;
+    }
+}
+void DataManagement::pop_coin(int slot_number)
+{
+    if (slot_coin[slot_number].size() > 0)
+    {
+        buf_out_coin.push(slot_coin[slot_number].pop());
+    }
+    else
+    {
+        std::cout << "|  data::DataManagement : 더 이상 빼낼 동전이 없습니다." << std::endl;
+    }
+}
+
+// 구매 관련
+void    DataManagement::select_drink(int slot_number)
+{
+    if (selected_drink == -1)               selected_drink = slot_number;   // 처음 선택하는 경우
+    else if (selected_drink == slot_number) selected_drink = -1;            // 선택 했던 음료수를 취소하는 겨우
+    else                                    selected_drink = slot_number;   // 이미 다른 음료수가 선택되어 있는경우
+}
+void    DataManagement::insert_coin(const Coin& coin)
+{
+    // 전체 7,000원 상한선
+    if ((inserted_coins + coin.amount) > 7000)
+    {
+        std::cout << "|  data::DataManagement : 입력 받는 금액은 7,000원을 넘을 수 없습니다." << std::endl;
+        buf_out_coin.push(coin);
+        return;
+    }
+    
+    // 지폐는 5장 상한선
+    if (coin.amount == 1000 && inserted_paper_count >= 5)
+    {
+        std::cout << "|  data::DataManagement : 입력 받는 지폐의 갯수는 5장을 넘을 수 없습니다." << std::endl;
+        buf_out_coin.push(coin);
+        return;
+    }
+    
+    // 돈 입력 받기
+    switch (coin.amount)
+    {
+        case 1000:
+            inserted_paper_count += 1;      // 투입 된 지폐 갯수 증가
+        case 10:
+        case 50:
+        case 100:
+        case 500:
+            inserted_coins += coin.amount;  // 투입 된 금액 증가
+            buf_in_coin.push(coin);
+            break;
+            
+        default:
+            std::cout << "|  data::DataManagement : 잘못된 금액 입력입니다." << std::endl;
+            buf_out_coin.push(coin);
+            return;
+    }
+}
+void    DataManagement::purchase()
+{
+    // 0. 선택한 음료가 있는지 확인
+    if (selected_drink == -1)
+    {
+        std::cout << "|  data::DataManagement : 구입 하시려는 음료수를 먼저 선택하여 주세요." << std::endl;
+        return;
+    }
+    
+    // 0. 음료수 남아 있는지 확인
+    if (slot_drink[selected_drink].size() < 1)
+    {
+        std::cout << "|  data::DataManagement : 구입 하시려는 음료수의 재고가 없습니다." << std::endl;
+        return;
+    }
+    
+    // 0. 입력된 금액 충분한지 확인
+    if (inserted_coins < slot_drink[selected_drink][0].price)
+    {
+        std::cout << "|  data::DataManagement : 입력하신 금액이 부족합니다." << std::endl;
+        return;
+    }
+    
+    // 1. 거스름돈 계산
+    uint64_t changes = calculate_change(inserted_coins - slot_drink[selected_drink][0].price);
+    
+    // 0. 거스름돈 반환 가능한지 확인
+    if (changes == -1)
+    {
+        std::cout << "|  data::DataManagement : 거슬러드릴 돈이 부족합니다. 금액을 맞게 투입하여 주세요." << std::endl;
+        return_coin();
+        return;
+    }
+    
+    // 2. 음료 반환
+    buf_out_drink.push(slot_drink[selected_drink].pop_front());
+    
+    // 3. 거스름돈 반환
+    return_change(changes);
+    
+    // 4. 투입된 금액 저장
+    while (buf_in_coin.size())
+    {
+        // 입력된 coin 1개 pop
+        Coin coin = buf_in_coin.pop();
+        
+        // coin 종류 별로 저장
+        switch (coin.amount)
+        {
+            case 10:    slot_coin[0].push(coin); break;
+            case 50:    slot_coin[1].push(coin); break;
+            case 100:   slot_coin[2].push(coin); break;
+            case 500:   slot_coin[3].push(coin); break;
+            case 1000:  slot_coin[4].push(coin); break;
+        }
+    }
+    
+    // 5. 구매 관련 변수 수정
+    selected_drink = -1;
+    inserted_coins = 0;
+    inserted_paper_count = 0;
+}
+void    DataManagement::return_coin()
+{
+    // 구매 관련 변수 초기화
+    inserted_coins = 0;
+    inserted_paper_count = 0;
+    
+    // 거스름돈 반환
+    while (buf_in_coin.size())
+        buf_out_coin.push(buf_in_coin.pop());   // coin 입력 버퍼 -> coin 출력 버퍼
+}
+
+// 구매 관련 : private
+uint64_t    DataManagement::calculate_change(uint64_t amount)
+{
+    // 잔돈 플래그
+    uint64_t changes = 0x0;
+    
+    // 거스름할 동전 종류
+    uint64_t money[5] = {10, 50, 100, 500, 1000};
+    
+    // 거스름할 동전 갯수
+    uint64_t count[5] = {0};
+    
+    // 거스름돈 계산
+    for (int i=4; i>=0; i--)
+    {
+        // 거슬러줄 동전 갯수 구하기
+        count[i] = amount / money[i];
+        
+        // 남은 동전 수에 맞추기
+        while (count[i] > slot_coin[i].size()) count[i]--;
+        
+        // 남은 가격 계산
+        amount = amount - (money[i] * count[i]);
+    }
+    
+    // 거스름돈 정보 플래그에 저장
+    for (int i=0; i<5; i++)
+    {
+        // 동전 갯수 플래그에 저장
+        changes = changes | count[i];
+        changes = changes << 8;
+    }
+    changes = changes >> 8;
+    
+    // 거스름돈 정보 플래그 반환
+    if (amount > 0) return -1;      // 거스름이 완벽히 되지 않았을때
+    else            return changes; // 거스름이 다 되었을때
+}
+void        DataManagement::return_change(uint64_t changes)
+{
+    // 잔돈 갯수 추출
+    int count[5] = {
+        (int)((changes >> 32) & 0xffff),
+        (int)((changes >> 24) & 0xff),
+        (int)((changes >> 16) & 0xff),
+        (int)((changes >> 8)  & 0xff),
+        (int)((changes >> 0)  & 0xff),
+    };
+    
+    // 잔돈 반환 하기 (나중에 멀티스레드로 변경하기)
+    for (int i=0; i<5; i++)
+        for (int n=0; n<count[i]; n++)
+            buf_out_coin.push(slot_coin[i].pop());
+}
+
+// 자판기 상태 출력
+void DataManagement::print_status()
+{
+    using namespace std;
+    
+    cout << "|==== 자판기 상태 출력." << endl;
+    cout << "|  ID : " << ID << endl;
+    cout << "|  PW : " << PW << endl;
+    cout << "|" << endl;
+    
+    cout << "|  동전 입구 : ";
+    for (int i=0; i<buf_in_coin.size(); i++)
+    {
+        cout << "(" << buf_in_coin[i].amount << "-" << buf_in_coin[i].banknote << ") ";
+    }
+    cout << endl;
+    
+    cout << "|  음료 출구 : ";
+    for (int i=0; i<buf_out_drink.size(); i++)
+    {
+        cout << "(" << buf_out_drink[i].name << "-" << buf_out_drink[i].price << ") ";
+    }
+    cout << endl;
+    
+    cout << "|  동전 출구 : ";
+    for (int i=0; i<buf_out_coin.size(); i++)
+    {
+        cout << "(" << buf_out_coin[i].amount << "-" << buf_out_coin[i].banknote << ") ";
+    }
+    cout << endl;
+    cout << "|" << endl;
+    
+    cout << "|  선택된 음료 : " << selected_drink << endl;
+    cout << "|  투입된 금액 : " << inserted_coins << endl;
+    cout << "|  투입된 지폐 갯수 : " << inserted_paper_count << endl;
+    cout << "|" << endl;
+    
+    for (int j=0; j<6; j++)
+    {
+        cout << "|  SLOT_DRINK_" << j << " : ";
+        for (int i=0; i<slot_drink[j].size(); i++)
+        {
+            cout << "(" << slot_drink[j][i].name << "-" << slot_drink[j][i].price << ") ";
+        }
+        cout << endl;
+    }
+    cout << "|" << endl;
+    
+    for (int j=0; j<5; j++)
+    {
+        cout << "|  SLOT_COIN_" << j << " : ";
+        for (int i=0; i<slot_coin[j].size(); i++)
+        {
+            cout << "(" << slot_coin[j][i].amount << "-" << slot_coin[j][i].banknote << ") ";
+        }
+        cout << endl;
+    }
+    
+    cout << "|===" << endl;
+}
 
 }
