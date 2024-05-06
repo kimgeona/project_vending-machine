@@ -100,9 +100,10 @@ bt6("반환")
 
 MyGridSidebar::MyGridSidebar() :
 bt1("상태 메시지"),
-bt2("투입된 금액"),
-bt3("구매"),
-bt4("관리자")
+bt2("선택한 음료"),
+bt3("투입된 금액"),
+bt4("구매"),
+bt5("관리자")
 {
     // MyGridSidebar 설정
     set_expand();
@@ -116,15 +117,18 @@ bt4("관리자")
     bt2.set_expand();
     bt3.set_expand();
     //bt4.set_expand();
+    //bt5.set_expand();
     bt1.set_sensitive(false);
     bt2.set_sensitive(false);
+    bt3.set_sensitive(false);
     
     // child 위젯 붙이기
     attach(bt1, 0, 0, 2, 1);
-    attach(bt2, 0, 1, 2, 3);
+    attach(bt2, 0, 1, 1, 3);
+    attach(bt3, 1, 1, 1, 3);
     attach(gd, 0, 4, 2, 3);
-    attach(bt3, 0, 9, 1, 1);
-    attach(bt4, 1, 9, 1, 1);
+    attach(bt4, 0, 9, 1, 1);
+    attach(bt5, 1, 9, 1, 1);
 }
 
 MyGridAll::MyGridAll()
