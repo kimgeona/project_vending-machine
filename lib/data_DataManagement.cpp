@@ -17,6 +17,9 @@ DataManagement::DataManagement()
     selected_drink = -1;
     inserted_coins = -1;
     inserted_paper_count = -1;
+    
+    // 상태 관련 메시지 설정
+    status_message = "out of service.";
 }
 DataManagement::DataManagement(std::string backup_dir)
 {
@@ -67,6 +70,9 @@ DataManagement::DataManagement(std::string backup_dir)
     selected_drink = -1;
     inserted_coins = 0;
     inserted_paper_count = 0;
+    
+    // 상태 관련 메시지 설정
+    status_message = "구매하실 음료수를 선택하세요.";
     
     cout << "|  data::DataManagement : 완료." << endl;
 }
@@ -211,8 +217,9 @@ void DataManagement::pop_coin(int slot_number)
 // 구매 관련
 void    DataManagement::select_drink(int slot_number)
 {
-    if (selected_drink == -1)               selected_drink = slot_number;   // 처음 선택하는 경우
-    else if (selected_drink == slot_number) selected_drink = -1;            // 선택 했던 음료수를 취소하는 겨우
+    if (slot_drink[slot_number].size()==0)  selected_drink = -1;            // 재고 소진인 음료를 선택하는 경우
+    else if (selected_drink == -1)          selected_drink = slot_number;   // 처음 선택하는 경우
+    else if (selected_drink == slot_number) selected_drink = -1;            // 선택 했던 음료수를 취소하는 경우
     else                                    selected_drink = slot_number;   // 이미 다른 음료수가 선택되어 있는경우
 }
 void    DataManagement::insert_coin(const Coin& coin)
@@ -313,6 +320,9 @@ void    DataManagement::purchase()
     selected_drink = -1;
     inserted_coins = 0;
     inserted_paper_count = 0;
+    
+    // 6. 재고가 변경됨에 따라 데이터 저장
+    //save();
 }
 void    DataManagement::return_coin()
 {
@@ -439,6 +449,33 @@ void DataManagement::print_status()
     }
     
     cout << "|===" << endl;
+}
+
+
+
+// 자판기 정보 불러오기
+std::string DataManagement::get_status_message()
+{
+    return status_message;
+}
+std::string DataManagement::get_drink_name(int slot_number)
+{
+    if (slot_drink[slot_number].size() > 0) return slot_drink[slot_number][0].name;
+    else                                    return "재고 소진";
+}
+std::string DataManagement::get_drink_price(int slot_number)
+{
+    if (slot_drink[slot_number].size() > 0) return std::to_string(slot_drink[slot_number][0].price);
+    else                                    return "----";
+}
+std::string DataManagement::get_selected_drink()
+{
+    if (selected_drink == -1)   return "";
+    else                        return slot_drink[selected_drink][0].name;
+}
+std::string DataManagement::get_inserted_coins()
+{
+    return std::to_string(inserted_coins);
 }
 
 }

@@ -41,6 +41,9 @@ private:
     int selected_drink;         // 선택된 음료 번호
     int inserted_coins;         // 투입된 금액
     int inserted_paper_count;   // 투입된 지폐 갯수
+    
+    // 자판기 상태 관련 변수
+    std::string status_message; // 자판기 상태 메시지
 
 public:
     // 생성자
@@ -81,6 +84,14 @@ public:
     std::string modify_pw(std::string);     // 관리자 비밀번호 변경
     std::string modify_drink_name(int slot_number, std::string name);   // 음료 이름 변경
     std::string modify_drink_price(int slot_number, int price);         // 음료 가격 변경
+    
+    // 자판기 정보 불러오기
+    std::string get_status_message();               // 자판기 상태 메시지 가져오기
+    std::string get_drink_name(int slot_number);    // 음료 이름 가져오기
+    std::string get_drink_price(int slot_number);   // 음료 가격 가져오기
+    std::string get_selected_drink();               // 선택된 음료 이름 가져오기
+    std::string get_inserted_coins();               // 투입된 금액 가져오기
+    
 };
 
 
