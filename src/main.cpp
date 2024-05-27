@@ -1,12 +1,17 @@
 // c++17
 #include <gtkmm.h>
 #include <iostream>
+#include <map>
 
 // 나의 라이브러리
 #include <gui.hpp>
 #include <data.hpp>
 
+// 전역 변수
+data::DataManagement dm;
+std::map<std::string, Gtk::Widget*> widget;
 
+// 함수 원형
 void preparation();                 // 프로그램 준비
 void run(int argc, char* argv[]);   // 프로그램 시작
 void test();                        // 테스트
@@ -31,6 +36,10 @@ void preparation()
 {
     using namespace std;
     cout << "Vending-Machine : 프로그램을 준비합니다." << endl;
+    
+    // 데이터 관리자 생성
+    cout << "Vending-Machine : 데이터 관리자를 실행합니다." << endl;
+    dm = data::DataManagement("test.txt");
 }
 
 
@@ -54,7 +63,5 @@ void run(int argc, char* argv[])
 void test()
 {
     using namespace std;
-    cout << "Test : 데이터 관리자를 실행합니다." << endl;
     
-    data::DataManagement dm("test.txt");
 }

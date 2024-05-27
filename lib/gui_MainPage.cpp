@@ -4,6 +4,40 @@ namespace gui
 {
 
 
+// 화면 새로 고침
+void refresh()
+{
+    // 음료 버튼 새로 고침
+    dynamic_cast<MyButtonMenu*>(widget["MyGridMenu::bt1"])->lb1.set_label(dm.get_drink_name(0));
+    dynamic_cast<MyButtonMenu*>(widget["MyGridMenu::bt1"])->lb2.set_label(dm.get_drink_price(0));
+    dynamic_cast<MyButtonMenu*>(widget["MyGridMenu::bt2"])->lb1.set_label(dm.get_drink_name(1));
+    dynamic_cast<MyButtonMenu*>(widget["MyGridMenu::bt2"])->lb2.set_label(dm.get_drink_price(1));
+    dynamic_cast<MyButtonMenu*>(widget["MyGridMenu::bt3"])->lb1.set_label(dm.get_drink_name(2));
+    dynamic_cast<MyButtonMenu*>(widget["MyGridMenu::bt3"])->lb2.set_label(dm.get_drink_price(2));
+    dynamic_cast<MyButtonMenu*>(widget["MyGridMenu::bt4"])->lb1.set_label(dm.get_drink_name(3));
+    dynamic_cast<MyButtonMenu*>(widget["MyGridMenu::bt4"])->lb2.set_label(dm.get_drink_price(3));
+    dynamic_cast<MyButtonMenu*>(widget["MyGridMenu::bt5"])->lb1.set_label(dm.get_drink_name(4));
+    dynamic_cast<MyButtonMenu*>(widget["MyGridMenu::bt5"])->lb2.set_label(dm.get_drink_price(4));
+    dynamic_cast<MyButtonMenu*>(widget["MyGridMenu::bt6"])->lb1.set_label(dm.get_drink_name(5));
+    dynamic_cast<MyButtonMenu*>(widget["MyGridMenu::bt6"])->lb2.set_label(dm.get_drink_price(5));
+    
+    // 음료수 출구 새로 고침
+    dynamic_cast<Gtk::Button*>(widget["MyGridReturnTray::bt1"])->set_label(dm.get_out_drink());
+    
+    // 거스름돈 출구 새로 고침
+    dynamic_cast<Gtk::Button*>(widget["MyGridReturnTray::bt2"])->set_label(dm.get_out_coin());
+    
+    // 상태 메시지 새로 고침
+    dynamic_cast<Gtk::Button*>(widget["MyGridSidebar::bt1"])->set_label(dm.get_status_message());
+    
+    // 선택한 음료 정보 새로 고침
+    dynamic_cast<MyButtonMenu*>(widget["MyGridSidebar::bt2"])->lb2.set_label(dm.get_selected_drink());
+    
+    // 투입된 금액 정보 새로 고침
+    dynamic_cast<MyButtonMenu*>(widget["MyGridSidebar::bt3"])->lb2.set_label(dm.get_inserted_coins());
+}
+
+
 MyButtonMenu::MyButtonMenu(Glib::ustring label1, Glib::ustring label2) :
 box(Gtk::Orientation::VERTICAL),
 lb1(label1),
@@ -37,6 +71,9 @@ bt6(dm.get_drink_name(5), dm.get_drink_price(5))
     set_margin_end(15);
     set_row_spacing(25);
     set_column_spacing(25);
+    set_row_homogeneous(true);
+    set_column_homogeneous(true);
+    set_size_request(400, 300);
     
     // child 위젯 붙이기
     attach(bt1, 0, 0);
@@ -46,13 +83,32 @@ bt6(dm.get_drink_name(5), dm.get_drink_price(5))
     attach(bt5, 1, 1);
     attach(bt6, 2, 1);
     
+    // map 컨테이너에 위젯들 저장
+    widget["MyGridMenu::bt1"] = &bt1;
+    widget["MyGridMenu::bt2"] = &bt2;
+    widget["MyGridMenu::bt3"] = &bt3;
+    widget["MyGridMenu::bt4"] = &bt4;
+    widget["MyGridMenu::bt5"] = &bt5;
+    widget["MyGridMenu::bt6"] = &bt6;
+    
     // signal 연결
-    bt1.signal_clicked()
+    bt1.signal_clicked().connect(sigc::bind(sigc::mem_fun(dm, &data::DataManagement::select_drink), 0));
+    bt1.signal_clicked().connect(sigc::ptr_fun(refresh));
+    bt2.signal_clicked().connect(sigc::bind(sigc::mem_fun(dm, &data::DataManagement::select_drink), 1));
+    bt2.signal_clicked().connect(sigc::ptr_fun(refresh));
+    bt3.signal_clicked().connect(sigc::bind(sigc::mem_fun(dm, &data::DataManagement::select_drink), 2));
+    bt3.signal_clicked().connect(sigc::ptr_fun(refresh));
+    bt4.signal_clicked().connect(sigc::bind(sigc::mem_fun(dm, &data::DataManagement::select_drink), 3));
+    bt4.signal_clicked().connect(sigc::ptr_fun(refresh));
+    bt5.signal_clicked().connect(sigc::bind(sigc::mem_fun(dm, &data::DataManagement::select_drink), 4));
+    bt5.signal_clicked().connect(sigc::ptr_fun(refresh));
+    bt6.signal_clicked().connect(sigc::bind(sigc::mem_fun(dm, &data::DataManagement::select_drink), 5));
+    bt6.signal_clicked().connect(sigc::ptr_fun(refresh));
 }
 
 MyGridReturnTray::MyGridReturnTray() :
-bt1("음료수 나옴"),
-bt2("거스름돈 나옴")
+bt1(dm.get_out_drink()),
+bt2(dm.get_out_coin())
 {
     // MyGridReturnTray 설정
     set_expand();
@@ -61,6 +117,9 @@ bt2("거스름돈 나옴")
     set_margin_end(15);
     set_row_spacing(25);
     set_column_spacing(25);
+    set_row_homogeneous(true);
+    set_column_homogeneous(true);
+    set_size_request(400, 100);
     
     // Button 설정
     bt1.set_expand();
@@ -69,6 +128,16 @@ bt2("거스름돈 나옴")
     // child 위젯 붙이기
     attach(bt1, 0, 0);
     attach(bt2, 1, 0);
+    
+    // map 컨테이너에 위젯들 저장
+    widget["MyGridReturnTray::bt1"] = &bt1;
+    widget["MyGridReturnTray::bt2"] = &bt2;
+    
+    // signal 연결
+    bt1.signal_clicked().connect(sigc::mem_fun(dm, &data::DataManagement::take_drinks));
+    bt1.signal_clicked().connect(sigc::ptr_fun(refresh));
+    bt2.signal_clicked().connect(sigc::mem_fun(dm, &data::DataManagement::take_coins));
+    bt2.signal_clicked().connect(sigc::ptr_fun(refresh));
 }
 
 MyGridPurchase::MyGridPurchase() :
@@ -83,6 +152,8 @@ bt6("반환")
     set_expand();
     set_row_spacing(15);
     set_column_spacing(15);
+    set_row_homogeneous(true);
+    set_column_homogeneous(true);
     
     // Button 설정
     bt1.set_expand();
@@ -99,6 +170,28 @@ bt6("반환")
     attach(bt4, 1, 1);
     attach(bt5, 0, 2);
     attach(bt6, 1, 2);
+    
+    // map 컨테이너에 위젯들 저장
+    widget["MyGridPurchase::bt1"] = &bt1;
+    widget["MyGridPurchase::bt2"] = &bt2;
+    widget["MyGridPurchase::bt3"] = &bt3;
+    widget["MyGridPurchase::bt4"] = &bt4;
+    widget["MyGridPurchase::bt5"] = &bt5;
+    widget["MyGridPurchase::bt6"] = &bt6;
+    
+    // signal 연결
+    bt1.signal_clicked().connect(sigc::bind(sigc::mem_fun(dm, &data::DataManagement::insert_coin), data::Coin(10, 2024)));
+    bt1.signal_clicked().connect(sigc::ptr_fun(refresh));
+    bt2.signal_clicked().connect(sigc::bind(sigc::mem_fun(dm, &data::DataManagement::insert_coin), data::Coin(50, 2024)));
+    bt2.signal_clicked().connect(sigc::ptr_fun(refresh));
+    bt3.signal_clicked().connect(sigc::bind(sigc::mem_fun(dm, &data::DataManagement::insert_coin), data::Coin(100, 2024)));
+    bt3.signal_clicked().connect(sigc::ptr_fun(refresh));
+    bt4.signal_clicked().connect(sigc::bind(sigc::mem_fun(dm, &data::DataManagement::insert_coin), data::Coin(500, 2024)));
+    bt4.signal_clicked().connect(sigc::ptr_fun(refresh));
+    bt5.signal_clicked().connect(sigc::bind(sigc::mem_fun(dm, &data::DataManagement::insert_coin), data::Coin(1000, 2024)));
+    bt5.signal_clicked().connect(sigc::ptr_fun(refresh));
+    bt6.signal_clicked().connect(sigc::mem_fun(dm, &data::DataManagement::return_coin));
+    bt6.signal_clicked().connect(sigc::ptr_fun(refresh));
 }
 
 MyGridSidebar::MyGridSidebar() :
@@ -114,24 +207,38 @@ bt5("관리자")
     set_margin_start(15);
     set_row_spacing(15);
     set_column_spacing(15);
+    set_row_homogeneous(true);
+    set_column_homogeneous(true);
+    set_size_request(300, 430);
     
     // Button 설정
     bt1.set_expand();
     bt2.set_expand();
     bt3.set_expand();
-    //bt4.set_expand();
-    //bt5.set_expand();
+    bt4.set_expand();
+    bt5.set_expand();
     bt1.set_sensitive(false);
     bt2.set_sensitive(false);
     bt3.set_sensitive(false);
     
     // child 위젯 붙이기
     attach(bt1, 0, 0, 2, 1);
-    attach(bt2, 0, 1, 1, 3);
-    attach(bt3, 1, 1, 1, 3);
-    attach(gd, 0, 4, 2, 3);
-    attach(bt4, 0, 9, 1, 1);
-    attach(bt5, 1, 9, 1, 1);
+    attach(bt2, 0, 1, 1, 2);
+    attach(bt3, 1, 1, 1, 2);
+    attach(gd, 0, 3, 2, 3);
+    attach(bt4, 0, 8, 1, 1);
+    attach(bt5, 1, 8, 1, 1);
+    
+    // map 컨테이너에 위젯들 저장
+    widget["MyGridSidebar::bt1"] = &bt1;
+    widget["MyGridSidebar::bt2"] = &bt2;
+    widget["MyGridSidebar::bt3"] = &bt3;
+    widget["MyGridSidebar::bt4"] = &bt4;
+    widget["MyGridSidebar::bt5"] = &bt5;
+    
+    // signal 연결
+    bt4.signal_clicked().connect(sigc::mem_fun(dm, &data::DataManagement::purchase));
+    bt4.signal_clicked().connect(sigc::ptr_fun(refresh));
 }
 
 MyGridAll::MyGridAll()
@@ -160,21 +267,15 @@ Gtk::AspectFrame(Gtk::Align::CENTER, Gtk::Align::CENTER, rate, false)
 }
 
 MainPage::MainPage() :
-fm(9.0/5.0)
+fm(860.0/510.0)
 {
     // window 설정
     set_title("Vending Machine");   // 윈도우 이름 설정
-    set_default_size(900, 500);     // 윈도우 크기 설정
-    set_size_request(900, 500);     // 윈도우 최소 크기 설정
+    set_default_size(860, 510);     // 윈도우 크기 설정
+    set_size_request(860, 510);     // 윈도우 최소 크기 설정
     
     // child 위젯 등록
     set_child(fm);
-}
-
-void MyButtonMenu::set_label(Glib::ustring label1, Glib::ustring label2)
-{
-    lb1.set_text(label1);
-    lb2.set_text(label2);
 }
 
 

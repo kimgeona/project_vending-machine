@@ -174,7 +174,7 @@ void DataManagement::save()
         {
             fout << "coin-" << i << "-" << j;
             fout << "=";
-            fout << slot_coin[i][j].amount << "-" << slot_coin[i][j].banknote << endl;
+            fout << std::to_string(slot_coin[i][j].amount) << "-" << std::to_string(slot_coin[i][j].banknote) << endl;
         }
     fout << endl;
     
@@ -217,10 +217,15 @@ void DataManagement::pop_coin(int slot_number)
 // 구매 관련
 void    DataManagement::select_drink(int slot_number)
 {
+    // 음료수 선택
     if (slot_drink[slot_number].size()==0)  selected_drink = -1;            // 재고 소진인 음료를 선택하는 경우
     else if (selected_drink == -1)          selected_drink = slot_number;   // 처음 선택하는 경우
     else if (selected_drink == slot_number) selected_drink = -1;            // 선택 했던 음료수를 취소하는 경우
     else                                    selected_drink = slot_number;   // 이미 다른 음료수가 선택되어 있는경우
+    
+    // 상태 관련 메시지 설정
+    if (selected_drink == -1)   status_message = "구매하실 음료수를 선택하세요.";
+    else                        status_message = "금액을 투입하여 주세요.";
 }
 void    DataManagement::insert_coin(const Coin& coin)
 {
@@ -228,6 +233,7 @@ void    DataManagement::insert_coin(const Coin& coin)
     if ((inserted_coins + coin.amount) > 7000)
     {
         std::cout << "|  data::DataManagement : 입력 받는 금액은 7,000원을 넘을 수 없습니다." << std::endl;
+        status_message = "입력 받는 금액은 7,000원을 넘을 수 없습니다.";
         buf_out_coin.push(coin);
         return;
     }
@@ -236,6 +242,7 @@ void    DataManagement::insert_coin(const Coin& coin)
     if (coin.amount == 1000 && inserted_paper_count >= 5)
     {
         std::cout << "|  data::DataManagement : 입력 받는 지폐의 갯수는 5장을 넘을 수 없습니다." << std::endl;
+        status_message = "입력 받는 지폐의 갯수는 5장을 넘을 수 없습니다.";
         buf_out_coin.push(coin);
         return;
     }
@@ -250,11 +257,13 @@ void    DataManagement::insert_coin(const Coin& coin)
         case 100:
         case 500:
             inserted_coins += coin.amount;  // 투입 된 금액 증가
+            status_message = "금액이 입력 되었습니다.";
             buf_in_coin.push(coin);
             break;
             
         default:
             std::cout << "|  data::DataManagement : 잘못된 금액 입력입니다." << std::endl;
+            status_message = "잘못된 금액 입력입니다.";
             buf_out_coin.push(coin);
             return;
     }
@@ -265,6 +274,7 @@ void    DataManagement::purchase()
     if (selected_drink == -1)
     {
         std::cout << "|  data::DataManagement : 구입 하시려는 음료수를 먼저 선택하여 주세요." << std::endl;
+        status_message = "음료수를 먼저 선택하여 주세요.";
         return;
     }
     
@@ -272,6 +282,7 @@ void    DataManagement::purchase()
     if (slot_drink[selected_drink].size() < 1)
     {
         std::cout << "|  data::DataManagement : 구입 하시려는 음료수의 재고가 없습니다." << std::endl;
+        status_message = "구입 하시려는 음료수의 재고가 없습니다.";
         return;
     }
     
@@ -279,6 +290,7 @@ void    DataManagement::purchase()
     if (inserted_coins < slot_drink[selected_drink][0].price)
     {
         std::cout << "|  data::DataManagement : 입력하신 금액이 부족합니다." << std::endl;
+        status_message = "입력하신 금액이 부족합니다.";
         return;
     }
     
@@ -288,8 +300,9 @@ void    DataManagement::purchase()
     // 0. 거스름돈 반환 가능한지 확인
     if (changes == -1)
     {
-        std::cout << "|  data::DataManagement : 거슬러드릴 돈이 부족합니다. 금액을 맞게 투입하여 주세요." << std::endl;
         return_coin();
+        std::cout << "|  data::DataManagement : 거슬러 드릴 돈이 부족합니다. 금액을 다시 맞게 투입하여 주세요." << std::endl;
+        status_message = "거스름돈 부족. 금액을 맞게 투입하세요.";
         return;
     }
     
@@ -322,7 +335,10 @@ void    DataManagement::purchase()
     inserted_paper_count = 0;
     
     // 6. 재고가 변경됨에 따라 데이터 저장
-    //save();
+    save();
+    
+    // 7. 상태 메시지 초기 설정
+    status_message = "구매하실 음료수를 선택하세요.";
 }
 void    DataManagement::return_coin()
 {
@@ -333,7 +349,22 @@ void    DataManagement::return_coin()
     // 거스름돈 반환
     while (buf_in_coin.size())
         buf_out_coin.push(buf_in_coin.pop());   // coin 입력 버퍼 -> coin 출력 버퍼
+    
+    // 상태 관련 메시지 설정
+    if (selected_drink == -1)   status_message = "구매하실 음료수를 선택하세요.";
+    else                        status_message = "금액을 투입하여 주세요.";
 }
+void    DataManagement::take_drinks()
+{
+    // 동전 반환 버퍼 비우기
+    while (buf_out_drink.size()) buf_out_drink.pop();
+}
+void    DataManagement::take_coins()
+{
+    // 거스름돈 반환 버퍼 비우기
+    while (buf_out_coin.size()) buf_out_coin.pop();
+}
+
 
 // 구매 관련 : private
 uint64_t    DataManagement::calculate_change(uint64_t amount)
@@ -477,5 +508,52 @@ std::string DataManagement::get_inserted_coins()
 {
     return std::to_string(inserted_coins);
 }
+std::string DataManagement::get_out_drink()
+{
+    // 음료수 버퍼 비어있을 경우
+    if (buf_out_drink.empty()) return "음료수 출구";
+    
+    // 음료수 버퍼 내용 출력
+    std::string s = "";
+    for (int i=0; i<buf_out_drink.size(); i++) s += buf_out_drink[i].name + "\n";
+    if (!s.empty()) s.erase(s.end()-1); // 마지막 문자 "_" 제거
+    return s;
+}
+std::string DataManagement::get_out_coin()
+{
+    // 거스름돈 버퍼 비어있을 경우
+    if (buf_out_coin.empty()) return "거스름돈 출구";
+    
+    // 거스름돈 버퍼 내용 출력
+    int cs[6] = {0};
+    for (int i=0; i<buf_out_coin.size(); i++)
+    {
+        switch (buf_out_coin[i].amount)
+        {
+            case 10:    cs[0]++; break;
+            case 50:    cs[1]++; break;
+            case 100:   cs[2]++; break;
+            case 500:   cs[3]++; break;
+            case 1000:  cs[4]++; break;
+            default:    cs[5]++; break;
+        }
+    }
+    std::string s = "";
+    for (int i=0; i<6; i++) if (cs[i])
+    {
+        switch (i)
+        {
+            case 0: s += "10원 x " + std::to_string(cs[i]) + "\n"; break;
+            case 1: s += "50원 x " + std::to_string(cs[i]) + "\n"; break;
+            case 2: s += "100원 x " + std::to_string(cs[i]) + "\n"; break;
+            case 3: s += "500원 x " + std::to_string(cs[i]) + "\n"; break;
+            case 4: s += "1000원 x " + std::to_string(cs[i]) + "\n"; break;
+            case 5: s += "이상한 동전 x " + std::to_string(cs[i]) + "\n"; break;
+        }
+    }
+    if (!s.empty()) s.erase(s.end()-1); // 마지막 문자 "_" 제거
+    return s;
+}
+
 
 }

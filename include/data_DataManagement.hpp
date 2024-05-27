@@ -65,6 +65,8 @@ public:
     void insert_coin(const Coin& coin);     // 2. 금액 투입
     void purchase();                        // 3. 구입 & 거스름돈 반환
     void return_coin();                     // *. 투입된 금액 반환
+    void take_drinks();                     // 반환된 음료 가져가기
+    void take_coins();                      // 반환된 거스름돈 가져가기
     
 private:
     // 구매 관련 : private
@@ -91,7 +93,8 @@ public:
     std::string get_drink_price(int slot_number);   // 음료 가격 가져오기
     std::string get_selected_drink();               // 선택된 음료 이름 가져오기
     std::string get_inserted_coins();               // 투입된 금액 가져오기
-    
+    std::string get_out_drink();                    // 음료수 출구에서 가져오기
+    std::string get_out_coin();                     // 거스름돈 출구에서 가져오기
 };
 
 
