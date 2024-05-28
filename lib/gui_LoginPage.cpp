@@ -12,9 +12,11 @@ MyGridLogin::MyGridLogin()
     set_margin(25);                     // 내부 여백 설정
     set_row_spacing(5);                 // 내부 요소 row spacing
     set_column_spacing(5);              // 내부 요소 col spacing
+    set_row_homogeneous();
+    set_column_homogeneous();
     
     // entry : id 설정
-    id.set_placeholder_text("사용자 이름");
+    id.set_placeholder_text("아이디");
     id.set_max_length(50);
     id.set_hexpand(true);
     
@@ -27,10 +29,25 @@ MyGridLogin::MyGridLogin()
     // button 설정
     bt.set_label("로그인");
     
+    // button 설정
+    message.set_label("아이디와 비밀번호를 입력하세요.");
+    message.set_sensitive(false);
+    message.set_margin_bottom(5);
+    
     // child 위젯 등록
-    attach(id, 0, 0, 3, 1);
-    attach(pw, 0, 1, 3, 1);
-    attach(bt, 3, 0, 2, 2);
+    attach(message, 0, 0, 7, 1);
+    attach(id, 0, 1, 5, 1);
+    attach(pw, 0, 2, 5, 1);
+    attach(bt, 5, 1, 2, 2);
+    
+    // map 컨테이너에 위젯들 저장
+    widget["MyGridLogin::message"] = &message;
+    widget["MyGridLogin::bt"] = &bt;
+    widget["MyGridLogin::id"] = &id;
+    widget["MyGridLogin::pw"] = &pw;
+    
+    // signal 연결
+    bt.signal_clicked().connect(sigc::ptr_fun(login));
 }
 
 LoginPage::LoginPage()

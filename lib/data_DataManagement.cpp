@@ -554,6 +554,14 @@ std::string DataManagement::get_out_coin()
     if (!s.empty()) s.erase(s.end()-1); // 마지막 문자 "_" 제거
     return s;
 }
+std::string DataManagement::get_id()
+{
+    return ID;
+}
+std::string DataManagement::get_pw()
+{
+    return PW;
+}
 
 
 }

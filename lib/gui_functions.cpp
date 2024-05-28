@@ -37,5 +37,31 @@ void refresh_MainPage()
     dynamic_cast<MyButtonMenu*>(widget["MyGridSidebar::bt3"])->lb2.set_label(dm.get_inserted_coins());
 }
 
+// 로그인
+void login()
+{
+    // 아이디와 비밀번호 가져오기
+    std::string id = dynamic_cast<Gtk::Entry*>(widget["MyGridLogin::id"])->get_text();
+    std::string pw = dynamic_cast<Gtk::Entry*>(widget["MyGridLogin::pw"])->get_text();
+    
+    // 로그인 진행
+    if (id != dm.get_id())
+    {
+        dynamic_cast<Gtk::Button*>(widget["MyGridLogin::message"])->set_label("아이디를 다시 확인하여 주세요.");
+        return;
+    }
+    if (pw != dm.get_pw())
+    {
+        dynamic_cast<Gtk::Button*>(widget["MyGridLogin::message"])->set_label("비밀번호를 다시 확인하여 주세요.");
+        return;
+    }
+    
+    // 로그인 성공
+    dynamic_cast<Gtk::Button*>(widget["MyGridLogin::message"])->set_label("로그인 성공.");
+    
+    // AdministratorPage 열기
+    // LoginPage 닫기
+}
+
 
 }

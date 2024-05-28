@@ -3,6 +3,8 @@
 #define gui_functions_hpp
 
 // c++17
+#include <thread>
+#include <chrono>
 #include <gtkmm.h>
 
 // 나의 라이브러리
@@ -20,6 +22,9 @@ namespace gui
 
 // 화면 새로 고침
 void refresh_MainPage();
+
+// 로그인
+void login();
 
 
 }

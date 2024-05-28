@@ -23,6 +23,7 @@ public:
     MyGridLogin();
     
 protected:
+    Gtk::Button message;
     Gtk::Button bt;
     Gtk::Entry  id;
     Gtk::Entry  pw;
