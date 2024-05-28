@@ -6,6 +6,7 @@
 #include <gtkmm.h>
 
 // 나의 라이브러리
+#include <gui_functions.hpp>
 #include <data.hpp>
 
 // 전역 변수

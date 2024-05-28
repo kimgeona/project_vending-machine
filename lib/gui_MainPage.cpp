@@ -4,40 +4,6 @@ namespace gui
 {
 
 
-// 화면 새로 고침
-void refresh()
-{
-    // 음료 버튼 새로 고침
-    dynamic_cast<MyButtonMenu*>(widget["MyGridMenu::bt1"])->lb1.set_label(dm.get_drink_name(0));
-    dynamic_cast<MyButtonMenu*>(widget["MyGridMenu::bt1"])->lb2.set_label(dm.get_drink_price(0));
-    dynamic_cast<MyButtonMenu*>(widget["MyGridMenu::bt2"])->lb1.set_label(dm.get_drink_name(1));
-    dynamic_cast<MyButtonMenu*>(widget["MyGridMenu::bt2"])->lb2.set_label(dm.get_drink_price(1));
-    dynamic_cast<MyButtonMenu*>(widget["MyGridMenu::bt3"])->lb1.set_label(dm.get_drink_name(2));
-    dynamic_cast<MyButtonMenu*>(widget["MyGridMenu::bt3"])->lb2.set_label(dm.get_drink_price(2));
-    dynamic_cast<MyButtonMenu*>(widget["MyGridMenu::bt4"])->lb1.set_label(dm.get_drink_name(3));
-    dynamic_cast<MyButtonMenu*>(widget["MyGridMenu::bt4"])->lb2.set_label(dm.get_drink_price(3));
-    dynamic_cast<MyButtonMenu*>(widget["MyGridMenu::bt5"])->lb1.set_label(dm.get_drink_name(4));
-    dynamic_cast<MyButtonMenu*>(widget["MyGridMenu::bt5"])->lb2.set_label(dm.get_drink_price(4));
-    dynamic_cast<MyButtonMenu*>(widget["MyGridMenu::bt6"])->lb1.set_label(dm.get_drink_name(5));
-    dynamic_cast<MyButtonMenu*>(widget["MyGridMenu::bt6"])->lb2.set_label(dm.get_drink_price(5));
-    
-    // 음료수 출구 새로 고침
-    dynamic_cast<Gtk::Button*>(widget["MyGridReturnTray::bt1"])->set_label(dm.get_out_drink());
-    
-    // 거스름돈 출구 새로 고침
-    dynamic_cast<Gtk::Button*>(widget["MyGridReturnTray::bt2"])->set_label(dm.get_out_coin());
-    
-    // 상태 메시지 새로 고침
-    dynamic_cast<Gtk::Button*>(widget["MyGridSidebar::bt1"])->set_label(dm.get_status_message());
-    
-    // 선택한 음료 정보 새로 고침
-    dynamic_cast<MyButtonMenu*>(widget["MyGridSidebar::bt2"])->lb2.set_label(dm.get_selected_drink());
-    
-    // 투입된 금액 정보 새로 고침
-    dynamic_cast<MyButtonMenu*>(widget["MyGridSidebar::bt3"])->lb2.set_label(dm.get_inserted_coins());
-}
-
-
 MyButtonMenu::MyButtonMenu(Glib::ustring label1, Glib::ustring label2) :
 box(Gtk::Orientation::VERTICAL),
 lb1(label1),
@@ -93,17 +59,17 @@ bt6(dm.get_drink_name(5), dm.get_drink_price(5))
     
     // signal 연결
     bt1.signal_clicked().connect(sigc::bind(sigc::mem_fun(dm, &data::DataManagement::select_drink), 0));
-    bt1.signal_clicked().connect(sigc::ptr_fun(refresh));
+    bt1.signal_clicked().connect(sigc::ptr_fun(refresh_MainPage));
     bt2.signal_clicked().connect(sigc::bind(sigc::mem_fun(dm, &data::DataManagement::select_drink), 1));
-    bt2.signal_clicked().connect(sigc::ptr_fun(refresh));
+    bt2.signal_clicked().connect(sigc::ptr_fun(refresh_MainPage));
     bt3.signal_clicked().connect(sigc::bind(sigc::mem_fun(dm, &data::DataManagement::select_drink), 2));
-    bt3.signal_clicked().connect(sigc::ptr_fun(refresh));
+    bt3.signal_clicked().connect(sigc::ptr_fun(refresh_MainPage));
     bt4.signal_clicked().connect(sigc::bind(sigc::mem_fun(dm, &data::DataManagement::select_drink), 3));
-    bt4.signal_clicked().connect(sigc::ptr_fun(refresh));
+    bt4.signal_clicked().connect(sigc::ptr_fun(refresh_MainPage));
     bt5.signal_clicked().connect(sigc::bind(sigc::mem_fun(dm, &data::DataManagement::select_drink), 4));
-    bt5.signal_clicked().connect(sigc::ptr_fun(refresh));
+    bt5.signal_clicked().connect(sigc::ptr_fun(refresh_MainPage));
     bt6.signal_clicked().connect(sigc::bind(sigc::mem_fun(dm, &data::DataManagement::select_drink), 5));
-    bt6.signal_clicked().connect(sigc::ptr_fun(refresh));
+    bt6.signal_clicked().connect(sigc::ptr_fun(refresh_MainPage));
 }
 
 MyGridReturnTray::MyGridReturnTray() :
@@ -135,9 +101,9 @@ bt2(dm.get_out_coin())
     
     // signal 연결
     bt1.signal_clicked().connect(sigc::mem_fun(dm, &data::DataManagement::take_drinks));
-    bt1.signal_clicked().connect(sigc::ptr_fun(refresh));
+    bt1.signal_clicked().connect(sigc::ptr_fun(refresh_MainPage));
     bt2.signal_clicked().connect(sigc::mem_fun(dm, &data::DataManagement::take_coins));
-    bt2.signal_clicked().connect(sigc::ptr_fun(refresh));
+    bt2.signal_clicked().connect(sigc::ptr_fun(refresh_MainPage));
 }
 
 MyGridPurchase::MyGridPurchase() :
@@ -181,17 +147,17 @@ bt6("반환")
     
     // signal 연결
     bt1.signal_clicked().connect(sigc::bind(sigc::mem_fun(dm, &data::DataManagement::insert_coin), data::Coin(10, 2024)));
-    bt1.signal_clicked().connect(sigc::ptr_fun(refresh));
+    bt1.signal_clicked().connect(sigc::ptr_fun(refresh_MainPage));
     bt2.signal_clicked().connect(sigc::bind(sigc::mem_fun(dm, &data::DataManagement::insert_coin), data::Coin(50, 2024)));
-    bt2.signal_clicked().connect(sigc::ptr_fun(refresh));
+    bt2.signal_clicked().connect(sigc::ptr_fun(refresh_MainPage));
     bt3.signal_clicked().connect(sigc::bind(sigc::mem_fun(dm, &data::DataManagement::insert_coin), data::Coin(100, 2024)));
-    bt3.signal_clicked().connect(sigc::ptr_fun(refresh));
+    bt3.signal_clicked().connect(sigc::ptr_fun(refresh_MainPage));
     bt4.signal_clicked().connect(sigc::bind(sigc::mem_fun(dm, &data::DataManagement::insert_coin), data::Coin(500, 2024)));
-    bt4.signal_clicked().connect(sigc::ptr_fun(refresh));
+    bt4.signal_clicked().connect(sigc::ptr_fun(refresh_MainPage));
     bt5.signal_clicked().connect(sigc::bind(sigc::mem_fun(dm, &data::DataManagement::insert_coin), data::Coin(1000, 2024)));
-    bt5.signal_clicked().connect(sigc::ptr_fun(refresh));
+    bt5.signal_clicked().connect(sigc::ptr_fun(refresh_MainPage));
     bt6.signal_clicked().connect(sigc::mem_fun(dm, &data::DataManagement::return_coin));
-    bt6.signal_clicked().connect(sigc::ptr_fun(refresh));
+    bt6.signal_clicked().connect(sigc::ptr_fun(refresh_MainPage));
 }
 
 MyGridSidebar::MyGridSidebar() :
@@ -238,7 +204,7 @@ bt5("관리자")
     
     // signal 연결
     bt4.signal_clicked().connect(sigc::mem_fun(dm, &data::DataManagement::purchase));
-    bt4.signal_clicked().connect(sigc::ptr_fun(refresh));
+    bt4.signal_clicked().connect(sigc::ptr_fun(refresh_MainPage));
 }
 
 MyGridAll::MyGridAll()
