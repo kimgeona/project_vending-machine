@@ -87,7 +87,7 @@ public:
     std::string modify_drink_name(int slot_number, std::string name);   // 음료 이름 변경
     std::string modify_drink_price(int slot_number, int price);         // 음료 가격 변경
     
-    // 자판기 정보 불러오기
+    // 자판기 정보 불러오기 : MainPage
     std::string get_status_message();               // 자판기 상태 메시지 가져오기
     std::string get_drink_name(int slot_number);    // 음료 이름 가져오기
     std::string get_drink_price(int slot_number);   // 음료 가격 가져오기
@@ -95,8 +95,13 @@ public:
     std::string get_inserted_coins();               // 투입된 금액 가져오기
     std::string get_out_drink();                    // 음료수 출구에서 가져오기
     std::string get_out_coin();                     // 거스름돈 출구에서 가져오기
+    
+    // 자판기 정보 불러오기 : LoginPage
     std::string get_id();                           // 사용자 id 가져오기
     std::string get_pw();                           // 사용자 pw 가져오기
+    
+    // 자판기 정보 불러오기 : AdministratorPage
+    
 };
 
 

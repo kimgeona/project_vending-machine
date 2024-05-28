@@ -484,7 +484,7 @@ void DataManagement::print_status()
 
 
 
-// 자판기 정보 불러오기
+// 자판기 정보 불러오기 : MainPage
 std::string DataManagement::get_status_message()
 {
     return status_message;
@@ -554,6 +554,8 @@ std::string DataManagement::get_out_coin()
     if (!s.empty()) s.erase(s.end()-1); // 마지막 문자 "_" 제거
     return s;
 }
+
+// 자판기 정보 불러오기 : LoginPage
 std::string DataManagement::get_id()
 {
     return ID;
@@ -562,6 +564,9 @@ std::string DataManagement::get_pw()
 {
     return PW;
 }
+
+// 자판기 정보 불러오기 : AdministratorPage
+
 
 
 }
