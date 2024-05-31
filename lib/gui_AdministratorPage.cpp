@@ -7,10 +7,12 @@ namespace gui
 MyGridSales::MyGridSales()
 {
     // MyGridSales 설정
-    set_hexpand();
-    set_margin(15);          // 내부 여백 설정
-    set_row_spacing(10);     // 내부 요소 row spacing
-    set_column_spacing(10);  // 내부 요소 col spacing
+    set_hexpand();              // 위젯 꽉 채우기
+    set_margin(15);             // 내부 여백 설정
+    set_row_spacing(10);        // 내부 요소 row spacing
+    set_column_spacing(10);     // 내부 요소 col spacing
+    set_row_homogeneous();      // 내부 위젯들 행 크기 동일하게
+    set_column_homogeneous();   // 내부 위젯들 열 크기 동일하게
     
     // checkbutton 설정
     bt1.set_label("일별");
@@ -37,87 +39,122 @@ MyGridSales::MyGridSales()
     // child 등록
     attach(bt1, 0, 0, 1, 1);
     attach(bt2, 1, 0, 1, 1);
-    attach(fm, 0, 1, 2, 20);
+    attach(fm, 0, 1, 2, 7);
 }
 MyGridChanges::MyGridChanges()
 {
     // MyGridChanges 설정
-    set_hexpand();
-    set_margin(15);          // 내부 여백 설정
-    set_row_spacing(10);     // 내부 요소 row spacing
-    set_column_spacing(10);  // 내부 요소 col spacing
+    set_hexpand();              // 위젯 꽉 채우기
+    set_margin(15);             // 내부 여백 설정
+    set_row_spacing(10);        // 내부 요소 row spacing
+    set_column_spacing(10);     // 내부 요소 col spacing
+    //set_row_homogeneous();      // 내부 위젯들 행 크기 동일하게
+    //set_column_homogeneous();   // 내부 위젯들 열 크기 동일하게
     
-    // label 설정
-    lb1.set_label("₩   10 : ");
-    lb2.set_label("₩   50 : ");
-    lb3.set_label("₩  100 : ");
-    lb4.set_label("₩  500 : ");
-    lb5.set_label("₩ 1000 : ");
+    
+    // Label 설정
+    lb[0].set_label("₩   10 : ");
+    lb[1].set_label("₩   50 : ");
+    lb[2].set_label("₩  100 : ");
+    lb[3].set_label("₩  500 : ");
+    lb[4].set_label("₩ 1000 : ");
+    lb[0].set_xalign(1.0);
+    lb[1].set_xalign(1.0);
+    lb[2].set_xalign(1.0);
+    lb[3].set_xalign(1.0);
+    lb[4].set_xalign(1.0);
     lb_total.set_label("전체 잔액 : ");
+    lb_total.set_xalign(1.0);
+    lb_total_v.set_label("전체 잔액 합산 표시");
+    lb_total_v.set_xalign(0.0);
     lb_refundable.set_label("수금 가능 금액 : ");
+    lb_refundable.set_xalign(1.0);
+    lb_refundable_v.set_label("수금 가능 잔액 표시");
+    lb_refundable_v.set_xalign(0.0);
     
-    // entry 설정
-    en1.set_placeholder_text("잔액 표시");
-    en2.set_placeholder_text("잔액 표시");
-    en3.set_placeholder_text("잔액 표시");
-    en4.set_placeholder_text("잔액 표시");
-    en5.set_placeholder_text("잔액 표시");
-    en_total.set_placeholder_text("전체 잔액 합산 표시");
-    en_refundable.set_placeholder_text("수금 가능 잔액 표시");
+    // Adjustment 생성
+    ad[0] = Gtk::Adjustment::create(10.0, 0.0, 100.0, 1.0, 0.0, 0.0);
+    ad[1] = Gtk::Adjustment::create(10.0, 0.0, 100.0, 1.0, 0.0, 0.0);
+    ad[2] = Gtk::Adjustment::create(10.0, 0.0, 100.0, 1.0, 0.0, 0.0);
+    ad[3] = Gtk::Adjustment::create(10.0, 0.0, 100.0, 1.0, 0.0, 0.0);
+    ad[4] = Gtk::Adjustment::create(10.0, 0.0, 100.0, 1.0, 0.0, 0.0);
+    
+    // SpiinButton 설정
+    sb[0].set_adjustment(ad[0]);
+    sb[1].set_adjustment(ad[1]);
+    sb[2].set_adjustment(ad[2]);
+    sb[3].set_adjustment(ad[3]);
+    sb[4].set_adjustment(ad[4]);
+    sb[0].set_digits(0); // 허용 가능한 소수점 범위 설정
+    sb[1].set_digits(0);
+    sb[2].set_digits(0);
+    sb[3].set_digits(0);
+    sb[4].set_digits(0);
+    sb[0].set_expand();
+    sb[1].set_expand();
+    sb[2].set_expand();
+    sb[3].set_expand();
+    sb[4].set_expand();
     
     // button 설정
-    bt1_p.set_label("+");
-    bt2_p.set_label("+");
-    bt3_p.set_label("+");
-    bt4_p.set_label("+");
-    bt5_p.set_label("+");
-    bt1_m.set_label("-");
-    bt2_m.set_label("-");
-    bt3_m.set_label("-");
-    bt4_m.set_label("-");
-    bt5_m.set_label("-");
+    bt[0].set_label("수정");
+    bt[1].set_label("수정");
+    bt[2].set_label("수정");
+    bt[3].set_label("수정");
+    bt[4].set_label("수정");
     bt_collect.set_label("수금하기");
     
     // child 등록 : 잔액
-    attach(lb1, 0, 0, 2, 1);
-    attach(lb2, 0, 1, 2, 1);
-    attach(lb3, 0, 2, 2, 1);
-    attach(lb4, 0, 3, 2, 1);
-    attach(lb5, 0, 4, 2, 1);
-    attach(en1, 2, 0, 8, 1);
-    attach(en2, 2, 1, 8, 1);
-    attach(en3, 2, 2, 8, 1);
-    attach(en4, 2, 3, 8, 1);
-    attach(en5, 2, 4, 8, 1);
-    attach(bt1_m, 10, 0, 1, 1);
-    attach(bt2_m, 10, 1, 1, 1);
-    attach(bt3_m, 10, 2, 1, 1);
-    attach(bt4_m, 10, 3, 1, 1);
-    attach(bt5_m, 10, 4, 1, 1);
-    attach(bt1_p, 11, 0, 1, 1);
-    attach(bt2_p, 11, 1, 1, 1);
-    attach(bt3_p, 11, 2, 1, 1);
-    attach(bt4_p, 11, 3, 1, 1);
-    attach(bt5_p, 11, 4, 1, 1);
+    attach(lb[0], 0, 0, 1, 1);
+    attach(lb[1], 0, 1, 1, 1);
+    attach(lb[2], 0, 2, 1, 1);
+    attach(lb[3], 0, 3, 1, 1);
+    attach(lb[4], 0, 4, 1, 1);
+    
+    attach(sb[0], 1, 0, 4, 1);
+    attach(sb[1], 1, 1, 4, 1);
+    attach(sb[2], 1, 2, 4, 1);
+    attach(sb[3], 1, 3, 4, 1);
+    attach(sb[4], 1, 4, 4, 1);
+    
+    attach(bt[0], 5, 0, 1, 1);
+    attach(bt[1], 5, 1, 1, 1);
+    attach(bt[2], 5, 2, 1, 1);
+    attach(bt[3], 5, 3, 1, 1);
+    attach(bt[4], 5, 4, 1, 1);
     
     // child 등록 : 전체 잔액
-    attach(lb_total, 0, 5, 2, 1);
-    attach(en_total, 2, 5, 10, 1);
+    attach(lb_total, 0, 5, 1, 1);
+    attach(lb_total_v, 1, 5, 5, 1);
     
     // child 등록 : 수금
-    attach(lb_refundable, 0, 6, 2, 1);
-    attach(en_refundable, 2, 6, 8, 1);
-    attach(bt_collect, 10, 6, 2, 1);
+    attach(lb_refundable, 0, 6, 1, 1);
+    attach(lb_refundable_v, 1, 6, 4, 1);
+    attach(bt_collect, 5, 6, 1, 1);
 }
 MyGridInventory::MyGridInventory()
 {
     // MyGridInventory 설정
-    set_hexpand();
-    set_margin(15);          // 내부 여백 설정
-    set_row_spacing(10);     // 내부 요소 row spacing
-    set_column_spacing(10);  // 내부 요소 col spacing
+    set_hexpand();              // 위젯 꽉 채우기
+    set_margin(15);             // 내부 여백 설정
+    set_row_spacing(10);        // 내부 요소 row spacing
+    set_column_spacing(10);     // 내부 요소 col spacing
+    set_row_homogeneous();      // 내부 위젯들 행 크기 동일하게
+    set_column_homogeneous();   // 내부 위젯들 열 크기 동일하게
     
-    // box 설정
+    // MyGridInventory 설정 : child 등록
+    attach(bx, 0, 0, 12, 1);
+    attach(lb_na, 0, 1, 2, 1);
+    attach(lb_pr, 0, 2, 2, 1);
+    attach(lb_re, 0, 3, 2, 1);
+    attach(en_na, 2, 1, 8, 1);
+    attach(en_pr, 2, 2, 8, 1);
+    attach(sb_re, 2, 3, 8, 1);
+    attach(bt_na, 10, 1, 2, 1);
+    attach(bt_pr, 10, 2, 2, 1);
+    attach(bt_re, 10, 3, 2, 1);
+    
+    // Box 설정
     bx.append(cb1);
     bx.append(cb2);
     bx.append(cb3);
@@ -125,7 +162,7 @@ MyGridInventory::MyGridInventory()
     bx.append(cb5);
     bx.append(cb6);
     
-    // checkbutton 설정
+    // Checkbutton 설정
     cb1.set_label("음료 1");
     cb2.set_label("음료 2");
     cb3.set_label("음료 3");
@@ -138,122 +175,121 @@ MyGridInventory::MyGridInventory()
     cb5.set_group(cb1);
     cb6.set_group(cb1);
     
-    // label 설정
+    // Label 설정
     lb_na.set_label("이름 : ");
     lb_pr.set_label("가격 : ");
     lb_re.set_label("갯수 : ");
     
-    // entry 설정
+    // Entry 설정
     en_na.set_placeholder_text("음료 이름");
     en_pr.set_placeholder_text("음료 가격");
-    en_re.set_placeholder_text("음료 갯수");
     
-    // button 설정
+    // Adjustment 생성
+    ad_re = Gtk::Adjustment::create(5.0, 0.0, 10.0, 1.0, 0.0, 0.0);
+    
+    // SpiinButton 설정
+    sb_re.set_adjustment(ad_re);
+    sb_re.set_digits(0);            // 허용 가능한 소수점 범위 설정
+    
+    // Button 설정
     bt_na.set_label("수정");
     bt_pr.set_label("수정");
-    bt_re_p.set_label("+");
-    bt_re_m.set_label("-");
-    
-    // child 등록
-    attach(bx, 0, 0, 12, 1);
-    attach(lb_na, 0, 1, 2, 1);
-    attach(lb_pr, 0, 2, 2, 1);
-    attach(lb_re, 0, 3, 2, 1);
-    attach(en_na, 2, 1, 8, 1);
-    attach(en_pr, 2, 2, 8, 1);
-    attach(en_re, 2, 3, 8, 1);
-    attach(bt_na, 10, 1, 2, 1);
-    attach(bt_pr, 10, 2, 2, 1);
-    attach(bt_re_m, 10, 3, 1, 1);
-    attach(bt_re_p, 11, 3, 1, 1);
+    bt_re.set_label("수정");
 }
 MyGridSettings::MyGridSettings()
 {
     // MyGridSettings 설정
-    set_hexpand();
-    set_margin(15);          // 내부 여백 설정
-    set_row_spacing(10);     // 내부 요소 row spacing
-    set_column_spacing(10);  // 내부 요소 col spacing
+    set_hexpand();              // 위젯 꽉 채우기
+    set_margin(15);             // 내부 여백 설정
+    set_row_spacing(10);        // 내부 요소 row spacing
+    set_column_spacing(10);     // 내부 요소 col spacing
+    set_row_homogeneous();      // 내부 위젯들 행 크기 동일하게
+    set_column_homogeneous();   // 내부 위젯들 열 크기 동일하게
     
     
-    // label 설정
-    label_id.set_label("ID : ");
-    label_pw.set_label("PW : ");
+    // MyGridSettings 설정 : child 등록
+    attach(lb_id, 0, 0, 1, 1);
+    attach(lb_pw, 0, 1, 1, 1);
+    attach(elb_id, 1, 0, 4, 1);
+    attach(elb_pw, 1, 1, 4, 1);
+    attach(bt_id, 5, 0, 1, 1);
+    attach(bt_pw, 5, 1, 1, 1);
     
-    // entry : id 설정
-    id.set_placeholder_text("사용자 이름");
-    id.set_max_length(50);
-    id.set_hexpand(true);
     
-    // entry : pw 설정
-    pw.set_placeholder_text("비밀번호");
-    pw.set_max_length(50);
-    pw.set_hexpand(true);
+    // Label 설정
+    lb_id.set_label("ID :");    // 레이블 텍스트 설정
+    lb_id.set_xalign(0.5);      // 텍스트 가운데 정렬
+    lb_pw.set_label("PW :");
+    lb_pw.set_xalign(0.5);
     
-    // button 설정
-    button_id.set_label("변경");
-    button_pw.set_label("변경");
+    // Entry : id 설정
+    elb_id.set_placeholder_text("사용자 이름");
+    elb_id.set_max_length(50);
+    elb_id.set_hexpand(true);
     
-    // child 등록
-    attach(label_id, 0, 0, 1, 1);
-    attach(label_pw, 0, 1, 1, 1);
-    attach(id, 1, 0, 4, 1);
-    attach(pw, 1, 1, 4, 1);
-    attach(button_id, 5, 0, 1, 1);
-    attach(button_pw, 5, 1, 1, 1);
+    // Entry : pw 설정
+    elb_pw.set_placeholder_text("비밀번호");
+    elb_pw.set_max_length(50);
+    elb_pw.set_hexpand(true);
+    
+    // Button 설정
+    bt_id.set_label("변경");
+    bt_pw.set_label("변경");
 }
 
 
 template <class MyGrid>
-MyFrame<MyGrid>::MyFrame(Glib::ustring name)
+MyFrame<MyGrid>::MyFrame()
 {
     // MyFrame 설정
     set_hexpand();
-    set_label(name);                        // 레이블 설정
-    set_label_align(Gtk::Align::CENTER);    // 레이블 위치 설정
     
     // child 등록
     set_child(gd);
 }
 
-MyBoxListedFrames::MyBoxListedFrames() :
-fm1("계정 설정"),
-fm2("음료 정보 및 재고"),
-fm3("거스름돈"),
-fm4("매출")
-{
-    // MyBoxListedFrames 설정
-    set_expand();
-    set_orientation(Gtk::Orientation::VERTICAL);    // 포함되는 위젯들 나열 방향 설정
-    set_margin(20);
-    set_spacing(15);                                // 포함되는 위젯들 사이 공간 설정
-    
-    // child 등록
-    append(fm1);
-    append(fm2);
-    append(fm3);
-    append(fm4);
-}
 
-MyScrolledWindow::MyScrolledWindow()
+AdministratorPage::AdministratorPage() :
+lb1("계정 설정"),
+lb2("\n음료 정보 및 재고"),
+lb3("\n거스름돈"),
+lb4("\n매출")
 {
-    // MyScrolledWindow 설정
-    set_expand();
-    set_policy(Gtk::PolicyType::AUTOMATIC, Gtk::PolicyType::ALWAYS);    // 스크롤바 설정
-    
-    // child 등록
-    set_child(bx);
-}
-
-AdministratorPage::AdministratorPage()
-{
-    // window 설정
+    // Window 설정
     set_title("관리자 메뉴");
-    set_default_size(450, 600);
-    set_size_request(450, 300);     // 윈도우 최소 크기 설정
-    
-    // child 등록
+    set_default_size(470, 600);
+    set_size_request(470, 300);     // 윈도우 최소 크기 설정
     set_child(sw);
+    
+    // ScrolledWindow 설정
+    sw.set_expand();
+    sw.set_policy(Gtk::PolicyType::AUTOMATIC, Gtk::PolicyType::ALWAYS); // 스크롤바 설정
+    sw.set_child(bx);
+    
+    // Box 설정
+    bx.set_expand();
+    bx.set_orientation(Gtk::Orientation::VERTICAL);    // 포함되는 위젯들 나열 방향 설정
+    bx.set_margin(20);
+    bx.set_spacing(15);
+    bx.append(lb1);
+    bx.append(fm1);
+    bx.append(lb2);
+    bx.append(fm2);
+    bx.append(lb3);
+    bx.append(fm3);
+    bx.append(lb4);
+    bx.append(fm4);
+    
+    // Label 설정
+    lb1.set_xalign(0.0);
+    lb2.set_xalign(0.0);
+    lb3.set_xalign(0.0);
+    lb4.set_xalign(0.0);
+    
+    lb1.set_justify(Gtk::Justification::LEFT);
+    lb2.set_justify(Gtk::Justification::LEFT);
+    lb3.set_justify(Gtk::Justification::LEFT);
+    lb4.set_justify(Gtk::Justification::LEFT);
 }
 
 

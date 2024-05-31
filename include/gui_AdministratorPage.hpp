@@ -66,15 +66,14 @@ public:
     MyGridChanges();
     
 protected:
-    MyBox       bx1, bx2, bx3;
-    Gtk::Label  lb1, lb2, lb3, lb4, lb5;
-    Gtk::Label  lb_total, lb_refundable;
-    MyEntry     en1, en2, en3, en4, en5;
-    MyEntry     en_total, en_refundable;
-    Gtk::Button bt1_p, bt2_p, bt3_p, bt4_p, bt5_p;
-    Gtk::Button bt1_m, bt2_m, bt3_m, bt4_m, bt5_m;
-    Gtk::Button bt_collect;
+    Gtk::Label                      lb[5];
+    Glib::RefPtr<Gtk::Adjustment>   ad[5];
+    Gtk::SpinButton                 sb[5];
+    Gtk::Button                     bt[5];
     
+    Gtk::Label  lb_total, lb_refundable;
+    Gtk::Label  lb_total_v, lb_refundable_v;
+    Gtk::Button bt_collect;
 };
 class MyGridInventory   : public Gtk::Grid
 {
@@ -84,15 +83,17 @@ public:
 protected:
     MyBox               bx;
     MyCheckButton       cb1, cb2, cb3, cb4, cb5, cb6;
+    Glib::RefPtr<Gtk::Adjustment> ad_re;
+    
     Gtk::Label          lb_na;  // 음료 이름
     Gtk::Label          lb_pr;  // 음료 가격
     Gtk::Label          lb_re;  // 음료 갯수
     MyEntry             en_na;
     MyEntry             en_pr;
-    MyEntry             en_re;
+    Gtk::SpinButton     sb_re;
     Gtk::Button         bt_na;
     Gtk::Button         bt_pr;
-    Gtk::Button         bt_re_p, bt_re_m;
+    Gtk::Button         bt_re;
 };
 class MyGridSettings    : public Gtk::Grid
 {
@@ -100,43 +101,22 @@ public:
     MyGridSettings();
     
 protected:
-    Gtk::Label  label_id;
-    Gtk::Label  label_pw;
-    Gtk::Entry  id;
-    Gtk::Entry  pw;
-    Gtk::Button button_id;
-    Gtk::Button button_pw;
+    Gtk::Label      lb_id;
+    Gtk::Label      lb_pw;
+    Gtk::Entry      elb_id;
+    Gtk::Entry      elb_pw;
+    Gtk::Button     bt_id;
+    Gtk::Button     bt_pw;
 };
 
 template <class MyGrid>
 class MyFrame           : public Gtk::Frame
 {
 public:
-    MyFrame(Glib::ustring name);
+    MyFrame();
     
 protected:
     MyGrid gd;
-};
-
-class MyBoxListedFrames : public Gtk::Box
-{
-public:
-    MyBoxListedFrames();
-    
-protected:
-    MyFrame<MyGridSettings>     fm1;    // 계정 설정
-    MyFrame<MyGridInventory>    fm2;    // 재고
-    MyFrame<MyGridChanges>      fm3;    // 거스름돈
-    MyFrame<MyGridSales>        fm4;    // 매출
-};
-
-class MyScrolledWindow  : public Gtk::ScrolledWindow
-{
-public:
-    MyScrolledWindow();
-    
-protected:
-    MyBoxListedFrames bx;
 };
 
 class AdministratorPage : public Gtk::Window
@@ -145,7 +125,18 @@ public:
     AdministratorPage();
     
 protected:
-    MyScrolledWindow sw;
+    Gtk::ScrolledWindow sw;             // 스크롤 윈도우
+    Gtk::Box bx;                        // 박스
+    
+    Gtk::Label lb1;
+    Gtk::Label lb2;
+    Gtk::Label lb3;
+    Gtk::Label lb4;
+    
+    MyFrame<MyGridSettings>     fm1;    // 계정 설정
+    MyFrame<MyGridInventory>    fm2;    // 재고
+    MyFrame<MyGridChanges>      fm3;    // 거스름돈
+    MyFrame<MyGridSales>        fm4;    // 매출
 };
 
 
