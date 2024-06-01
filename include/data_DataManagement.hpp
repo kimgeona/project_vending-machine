@@ -22,7 +22,8 @@ class DataManagement
 {
 private:
     // 자판기 데이터 경로
-    std::filesystem::path   dir;            // 데이터 저장 주소
+    std::filesystem::path   dir_data;       // 데이터 저장 주소
+    std::filesystem::path   dir_log;        // 로그 기록 저장 주소
     
     // 사용자 계정
     std::string             ID;             // 계정 ID
@@ -54,11 +55,18 @@ public:
     void load();    // 데이터 불러오기
     void save();    // 데이터 저장
     
+    // 정보 수정
+    void set_id(std::string id);    // 아이디 설정
+    void set_pw(std::string pw);    // 비밀번호 설정
+    void set_drink_name(int slot_number, std::string name);     // 음료수 이름 변경
+    void set_drink_price(int slot_number, int price);           // 음료수 가격 변경
+    
     // 재고 관리
-    void push_drink(int slot_number, Drink& drink); // 음료 채우기
-    void push_coin(int slot_number, Coin& coin);    // 동전 채우기
+    void push_drink(int slot_number, Drink drink);  // 음료 채우기
+    void push_coin(int slot_number, Coin coin);     // 동전 채우기
     void pop_drink(int slot_number);                // 음료 빼기
     void pop_coin(int slot_number);                 // 동전 빼기
+    void collect_changes();                         // 잔돈 수금
     
     // 구매 관련
     void select_drink(int slot_number);     // 1. 음료 선택 (한번 더 누르면 취소)
@@ -76,10 +84,6 @@ private:
 public:
     // 자판기 상태 출력
     void print_status();
-    
-    // 관리자 설정
-    void collect_changes(void);     // 잔돈 수금
-    std::string sales();            // 매출 계산
     
     // 데이터 수정
     std::string modify_id(std::string);     // 관리자 이름 변경
@@ -101,7 +105,12 @@ public:
     std::string get_pw();                           // 사용자 pw 가져오기
     
     // 자판기 정보 불러오기 : AdministratorPage
-    
+    std::string get_drink_num(int slot_number);     // 보관중인 음료 갯수 구하기
+    std::string get_coin_num(int slot_number);      // 보관중인 잔돈 갯수 구하기
+    std::string get_balance();                      // 전체 잔액 구하기
+    std::string get_collectable_changes();          // 수금 가능한 잔돈 구하기
+    std::string get_sales_day();                    // 일별 매출 계산
+    std::string get_sales_month();                  // 월별 매출 계산
 };
 
 

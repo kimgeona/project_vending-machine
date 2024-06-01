@@ -39,7 +39,7 @@ void preparation()
     
     // 데이터 관리자 생성
     cout << "Vending-Machine : 데이터 관리자를 실행합니다." << endl;
-    dm = data::DataManagement("test.txt");
+    dm = data::DataManagement("test");
 }
 
 

@@ -11,7 +11,8 @@ DataManagement::DataManagement()
     using namespace std::filesystem;
     
     // 자판기 데이터 경로
-    dir = path("");
+    dir_data = path("");
+    dir_log = path("");
     ID = "";
     PW = "";
     selected_drink = -1;
@@ -21,16 +22,17 @@ DataManagement::DataManagement()
     // 상태 관련 메시지 설정
     status_message = "out of service.";
 }
-DataManagement::DataManagement(std::string backup_dir)
+DataManagement::DataManagement(std::string name)
 {
     using namespace std;
     using namespace std::filesystem;
     
     // 자판기 데이터 경로 저장
-    dir = path(backup_dir);
+    dir_data = path(name + "_data.txt");
+    dir_log = path(name + "_log.txt");
     
     // 자판기 데이터 불러오기
-    if (exists(dir) && is_regular_file(dir))
+    if (exists(dir_data) && is_regular_file(dir_data))
     {
         // 자판기 데이터 존재
         cout << "|  data::DataManagement : 자판기 데이터를 불러옵니다." << endl;
@@ -66,6 +68,21 @@ DataManagement::DataManagement(std::string backup_dir)
         save();
     }
     
+    // 자판기 로그 파일 생성하기
+    if (exists(dir_log) && is_regular_file(dir_log))
+    {
+        // 자판기 로그 존재
+        cout << "|  data::DataManagement : 자판기 기본 로그를 불러옵니다." << endl;
+    }
+    else
+    {
+        // 자판기 데이터가 없다면
+        cout << "|  data::DataManagement : 자판기를 기본 로그를 생성합니다." << endl;
+        
+        // 로그 파일 생성
+        ofstream(dir_log.string()).close();
+    }
+    
     // 구매 관련 변수 초기화
     selected_drink = -1;
     inserted_coins = 0;
@@ -87,7 +104,7 @@ void DataManagement::load()
     string buf;
     
     // 파일 열기
-    ifstream fin(dir.string());
+    ifstream fin(dir_data.string());
     if (!fin)
     {
         throw std::runtime_error("data::DataManagement::load() : 자판기 데이터 파일을 열 수 없습니다.");
@@ -149,10 +166,10 @@ void DataManagement::save()
     using namespace std::filesystem;
     
     // 기존에 존재하던 백업 파일 삭제
-    if (exists(dir) && is_regular_file(dir)) remove(dir);
+    if (exists(dir_data) && is_regular_file(dir_data)) remove(dir_data);
     
     // 파일 생성
-    ofstream fout(dir.string());
+    ofstream fout(dir_data.string());
     
     // 사용자 계정 정보 저장
     fout << "ID=" << ID << endl;
@@ -164,7 +181,7 @@ void DataManagement::save()
         {
             fout << "drink-" << i << "-" << j;
             fout << "=";
-            fout << slot_drink[i][j].name << "-" << slot_drink[i][j].price << endl;
+            fout << slot_drink[i][j].name << "-" << std::to_string(slot_drink[i][j].price) << endl;
         }
     fout << endl;
     
@@ -182,20 +199,86 @@ void DataManagement::save()
     fout.close();
 }
 
-// 재고 관리
-void DataManagement::push_drink(int slot_number, Drink& drink)
+// 정보 수정
+void DataManagement::set_id(std::string id)
 {
-    slot_drink[slot_number].push_back(drink);
+    // 아이디 변경
+    if (id != "") this->ID = id;
+    
+    // 변경 정보 저장
+    save();
 }
-void DataManagement::push_coin(int slot_number, Coin& coin)
+void DataManagement::set_pw(std::string pw)
 {
+    // 비밀번호 변경
+    if (pw != "") this->PW = pw;
+    
+    // 변경 정보 저장
+    save();
+}
+void DataManagement::set_drink_name(int slot_number, std::string name)
+{
+    // 음료수 이름 변경
+    if (name != "") for (int i=0; i<slot_drink[slot_number].size(); i++)
+    {
+        // 음료수 빼기
+        Drink drink = slot_drink[slot_number].pop_front();
+        
+        // 음료수 이름 수정
+        drink.name = name;
+        
+        // 음료수 집어넣기
+        slot_drink[slot_number].push_back(drink);
+    }
+    
+    // 변경 정보 저장
+    save();
+}
+void DataManagement::set_drink_price(int slot_number, int price)
+{
+    // 음료수 가격 변경
+    if (price >= 0) for (int i=0; i<slot_drink[slot_number].size(); i++)
+    {
+        // 음료수 빼기
+        Drink drink = slot_drink[slot_number].pop_front();
+    
+        // 음료수 이름 수정
+        drink.price = price;
+        
+        // 음료수 집어넣기
+        slot_drink[slot_number].push_back(drink);
+    }
+    
+    // 변경 정보 저장
+    save();
+}
+
+// 재고 관리
+void DataManagement::push_drink(int slot_number, Drink drink)
+{
+    // 음료 추가
+    slot_drink[slot_number].push_back(drink);
+    
+    // 변경 정보 저장
+    save();
+}
+void DataManagement::push_coin(int slot_number, Coin coin)
+{
+    // 거스름돈 추가
     slot_coin[slot_number].push(coin);
+    
+    // 변경 정보 저장
+    save();
 }
 void DataManagement::pop_drink(int slot_number)
 {
     if (slot_drink[slot_number].size() > 0)
     {
+        // 음료 제거(반환)
         buf_out_drink.push(slot_drink[slot_number].pop_front());
+        
+        // 변경 정보 저장
+        save();
     }
     else
     {
@@ -206,12 +289,27 @@ void DataManagement::pop_coin(int slot_number)
 {
     if (slot_coin[slot_number].size() > 0)
     {
+        // 거스름돈 제거(반환)
         buf_out_coin.push(slot_coin[slot_number].pop());
+        
+        // 변경 정보 저장
+        save();
     }
     else
     {
         std::cout << "|  data::DataManagement : 더 이상 빼낼 동전이 없습니다." << std::endl;
     }
+}
+void DataManagement::collect_changes()
+{
+    // 수금 가능 금액 만큼 잔돈 수금
+    for (int slot=0; slot<5; slot++)                        // 5개의 coin 슬롯에서
+        if (slot_coin[slot].size() > 10)                    // 해당 슬롯의 코인 갯수가 10개가 넘는다면
+            while (slot_coin[slot].size() > 10)             // 해당 슬롯의 코인 갯수가 10개 이상일때
+                buf_out_coin.push(slot_coin[slot].pop());   // 계속해서 코인을 제거(반환)한다.
+    
+    // 변경 정보 저장
+    save();
 }
 
 // 구매 관련
@@ -566,7 +664,48 @@ std::string DataManagement::get_pw()
 }
 
 // 자판기 정보 불러오기 : AdministratorPage
-
+std::string DataManagement::get_drink_num(int slot_number)
+{
+    return std::to_string(slot_drink[slot_number].size());
+}
+std::string DataManagement::get_coin_num(int slot_number)
+{
+    return std::to_string(slot_coin[slot_number].size());
+}
+std::string DataManagement::get_balance()
+{
+    // 전체 잔액 계산
+    int balance = 0;
+    balance += 10 * slot_coin[0].size();
+    balance += 50 * slot_coin[1].size();
+    balance += 100 * slot_coin[2].size();
+    balance += 500 * slot_coin[3].size();
+    balance += 1000 * slot_coin[4].size();
+    
+    // 계산된 전체 잔액 반환
+    return std::to_string(balance);
+}
+std::string DataManagement::get_collectable_changes()
+{
+    // 수금 가능 금액 계산
+    int sum = 0;
+    if (slot_coin[0].size() > 10) sum += 10   * (slot_coin[0].size() - 10);
+    if (slot_coin[1].size() > 10) sum += 50   * (slot_coin[1].size() - 10);
+    if (slot_coin[2].size() > 10) sum += 100  * (slot_coin[2].size() - 10);
+    if (slot_coin[3].size() > 10) sum += 500  * (slot_coin[3].size() - 10);
+    if (slot_coin[4].size() > 10) sum += 1000 * (slot_coin[4].size() - 10);
+    
+    // 계산된 수금 가능 금액 반환
+    return std::to_string(sum);
+}
+std::string DataManagement::get_sales_day()
+{
+    return "-- 일별 매출 계산입니다.";
+}
+std::string DataManagement::get_sales_month()
+{
+    return "-- 월별 매추 계산입니다.";
+}
 
 
 }

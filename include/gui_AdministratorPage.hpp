@@ -54,11 +54,10 @@ public:
     MyGridSales();
     
 protected:
-    MyCheckButton       bt1, bt2;
+    MyCheckButton       cb1, cb2;
     Gtk::Frame          fm;
     Gtk::ScrolledWindow sw;
-    Gtk::TextView       tv;
-    Glib::RefPtr<Gtk::TextBuffer> tb_ptr;
+    Gtk::Label          lb;
 };
 class MyGridChanges     : public Gtk::Grid
 {
