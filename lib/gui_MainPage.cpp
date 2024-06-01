@@ -205,6 +205,7 @@ bt5("관리자")
     // signal 연결
     bt4.signal_clicked().connect(sigc::mem_fun(dm, &data::DataManagement::purchase));
     bt4.signal_clicked().connect(sigc::ptr_fun(refresh_MainPage));
+    bt5.signal_clicked().connect(sigc::ptr_fun(show_login_page));
 }
 
 MyGridAll::MyGridAll()

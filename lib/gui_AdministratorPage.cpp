@@ -146,17 +146,22 @@ MyGridChanges::MyGridChanges()
     // signal 연결
     bt[0].signal_clicked().connect(sigc::bind(sigc::ptr_fun(edit_coin_num), 0));
     bt[0].signal_clicked().connect(sigc::ptr_fun(refresh_AdministratorPage_MyGridChanges));
+    bt[0].signal_clicked().connect(sigc::ptr_fun(refresh_MainPage));
     bt[1].signal_clicked().connect(sigc::bind(sigc::ptr_fun(edit_coin_num), 1));
     bt[1].signal_clicked().connect(sigc::ptr_fun(refresh_AdministratorPage_MyGridChanges));
+    bt[1].signal_clicked().connect(sigc::ptr_fun(refresh_MainPage));
     bt[2].signal_clicked().connect(sigc::bind(sigc::ptr_fun(edit_coin_num), 2));
     bt[2].signal_clicked().connect(sigc::ptr_fun(refresh_AdministratorPage_MyGridChanges));
+    bt[2].signal_clicked().connect(sigc::ptr_fun(refresh_MainPage));
     bt[3].signal_clicked().connect(sigc::bind(sigc::ptr_fun(edit_coin_num), 3));
     bt[3].signal_clicked().connect(sigc::ptr_fun(refresh_AdministratorPage_MyGridChanges));
+    bt[3].signal_clicked().connect(sigc::ptr_fun(refresh_MainPage));
     bt[4].signal_clicked().connect(sigc::bind(sigc::ptr_fun(edit_coin_num), 4));
     bt[4].signal_clicked().connect(sigc::ptr_fun(refresh_AdministratorPage_MyGridChanges));
+    bt[4].signal_clicked().connect(sigc::ptr_fun(refresh_MainPage));
     bt_collect.signal_clicked().connect(sigc::mem_fun(dm, &data::DataManagement::collect_changes));
     bt_collect.signal_clicked().connect(sigc::ptr_fun(refresh_AdministratorPage_MyGridChanges));
-    //bt_collect.signal_clicked().connect(sigc::ptr_fun(refresh_MainPage));
+    bt_collect.signal_clicked().connect(sigc::ptr_fun(refresh_MainPage));
 }
 MyGridInventory::MyGridInventory()
 {
@@ -249,15 +254,15 @@ MyGridInventory::MyGridInventory()
     
     bt_na.signal_clicked().connect(sigc::ptr_fun(edit_drink_name));
     bt_na.signal_clicked().connect(sigc::ptr_fun(refresh_AdministratorPage_MyGridInventory_name));
-    //bt_na.signal_clicked().connect(sigc::ptr_fun(refresh_MainPage));
+    bt_na.signal_clicked().connect(sigc::ptr_fun(refresh_MainPage));
     
     bt_pr.signal_clicked().connect(sigc::ptr_fun(edit_drink_price));
     bt_pr.signal_clicked().connect(sigc::ptr_fun(refresh_AdministratorPage_MyGridInventory_price));
-    //bt_pr.signal_clicked().connect(sigc::ptr_fun(refresh_MainPage));
+    bt_pr.signal_clicked().connect(sigc::ptr_fun(refresh_MainPage));
     
     bt_re.signal_clicked().connect(sigc::ptr_fun(edit_drink_num));
     bt_re.signal_clicked().connect(sigc::ptr_fun(refresh_AdministratorPage_MyGridInventory));
-    //bt_re.signal_clicked().connect(sigc::ptr_fun(refresh_MainPage));
+    bt_re.signal_clicked().connect(sigc::ptr_fun(refresh_MainPage));
 }
 MyGridSettings::MyGridSettings()
 {

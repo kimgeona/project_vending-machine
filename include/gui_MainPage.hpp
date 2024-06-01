@@ -98,6 +98,7 @@ class MainPage          : public Gtk::Window
 public:
     MainPage();
 
+protected:
     MyFrameCenter fm;
 };
 

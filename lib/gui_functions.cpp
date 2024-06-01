@@ -38,6 +38,18 @@ void refresh_MainPage()
     dynamic_cast<MyButtonMenu*>(widget["MyGridSidebar::bt3"])->lb2.set_label(dm.get_inserted_coins());
 }
 
+// 로그인 페이지 열기
+void show_login_page()
+{
+    // 버튼들 비활성화
+    
+    // LoginPage 생성
+    widget["LoginPage"] = new gui::LoginPage();
+    
+    // LoginPage 열기
+    dynamic_cast<Gtk::Window*>(widget["LoginPage"])->show();
+}
+
 // ======== LoginPage ========
 
 // 로그인
@@ -62,8 +74,14 @@ void login()
     // 로그인 성공
     dynamic_cast<Gtk::Button*>(widget["MyGridLogin::message"])->set_label("로그인 성공.");
     
+    // AdministratorPage 생성
+    widget["AdministratorPage"] = new gui::AdministratorPage();
+    
     // AdministratorPage 열기
+    dynamic_cast<Gtk::Window*>(widget["AdministratorPage"])->show();
+    
     // LoginPage 닫기
+    dynamic_cast<Gtk::Window*>(widget["LoginPage"])->destroy();
 }
 
 // ======== AdministratorPage ========
@@ -312,7 +330,7 @@ void refresh_AdministratorPage_MyGridChanges()
 void edit_coin_num(int slot_number)
 {
     // 입력된 동전 갯수 구하기
-    int v = dynamic_cast<Gtk::SpinButton*>(widget["MyGridChanges::sb[0]"])->get_value();
+    int v = dynamic_cast<Gtk::SpinButton*>(widget["MyGridChanges::sb["+std::to_string(slot_number)+"]"])->get_value();
     
     // 기존 음료 갯수 구하기
     int n = std::stoi(dm.get_coin_num(slot_number));

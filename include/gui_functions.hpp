@@ -26,6 +26,9 @@ namespace gui
 // 화면 새로 고침
 void refresh_MainPage();
 
+// 로그인 페이지 열기
+void show_login_page();
+
 // ======== LoginPage ========
 
 // 로그인
