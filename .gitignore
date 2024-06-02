@@ -1,6 +1,6 @@
 # folder
 build/
-src_io/
+src_*_io/
 
 # MacOS ignore
 .DS_Store

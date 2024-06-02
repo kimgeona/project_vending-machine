@@ -25,7 +25,8 @@ include_directories(
 # ==== 파일 조사, 타겟 생성 ====
 add_subdirectory(./include)
 add_subdirectory(./lib)
-add_subdirectory(./src)
+add_subdirectory(./src_client)
+add_subdirectory(./src_server)
 
 # ==== 운영체제 관련 설정 ====
 if(APPLE)
@@ -38,18 +39,28 @@ if(APPLE)
     #)
     # Xcode : Working Directory 설정
     set_target_properties(
-        my_program PROPERTIES
+        client PROPERTIES
         XCODE_GENERATE_SCHEME TRUE
-        XCODE_SCHEME_WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src_io/
+        XCODE_SCHEME_WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src_client_io/
+    )
+    set_target_properties(
+        server PROPERTIES
+        XCODE_GENERATE_SCHEME TRUE
+        XCODE_SCHEME_WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src_server_io/
     )
 elseif(WIN32)
     # MSVC : Working Directory 설정
     set_target_properties(
-        my_program PROPERTIES
-        VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src_io/
+        client PROPERTIES
+        VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src_client_io/
+    )
+    set_target_properties(
+        server PROPERTIES
+        VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src_server_io/
     )
     target_compile_options(my_library PRIVATE "/utf-8")
-    target_compile_options(my_program PRIVATE "/utf-8")
+    target_compile_options(client PRIVATE "/utf-8")
+    target_compile_options(server PRIVATE "/utf-8")
 endif()
 
 # ==== 프로젝트 설치 ====
