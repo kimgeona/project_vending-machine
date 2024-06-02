@@ -8,7 +8,7 @@
 #include <data.hpp>
 
 // 전역 변수
-std::map<std::string, data::DataManagement> dm;
+std::map<std::string, data::DataManagement> dms;
 std::map<std::string, Gtk::Widget*>         widget;
 
 int main(int argc, char* argv[])
