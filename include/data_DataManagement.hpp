@@ -21,6 +21,9 @@ namespace data
 class DataManagement
 {
 private:
+    // 자판기 이름
+    std::string name;                       // 자판기 이름
+    
     // 자판기 데이터 경로
     std::filesystem::path   dir_data;       // 데이터 저장 주소
     std::filesystem::path   dir_log;        // 로그 기록 저장 주소

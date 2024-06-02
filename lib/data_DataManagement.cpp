@@ -10,7 +10,7 @@ DataManagement::DataManagement()
     using namespace std;
     using namespace std::filesystem;
     
-    // 자판기 데이터 경로
+    name = "";
     dir_data = path("");
     dir_log = path("");
     ID = "";
@@ -27,6 +27,9 @@ DataManagement::DataManagement(std::string name)
     using namespace std;
     using namespace std::filesystem;
     
+    // 자판기 이름 저장
+    this->name = name;
+    
     // 자판기 데이터 경로 저장
     dir_data = path(name + "_data.txt");
     dir_log = path(name + "_log.txt");
@@ -35,7 +38,7 @@ DataManagement::DataManagement(std::string name)
     if (exists(dir_data) && is_regular_file(dir_data))
     {
         // 자판기 데이터 존재
-        cout << "|  data::DataManagement : 자판기 데이터를 불러옵니다." << endl;
+        cout << "|  data::DataManagement : ("+ name +") 자판기 데이터를 불러옵니다." << endl;
         
         // 데이터 불러오기
         load();
@@ -43,7 +46,7 @@ DataManagement::DataManagement(std::string name)
     else
     {
         // 자판기 데이터가 없다면
-        cout << "|  data::DataManagement : 자판기를 새로 생성합니다." << endl;
+        cout << "|  data::DataManagement : ("+ name +") 자판기를 새로 생성합니다." << endl;
         
         // 사용자 계정 생성
         ID = "admin";
@@ -72,12 +75,12 @@ DataManagement::DataManagement(std::string name)
     if (exists(dir_log) && is_regular_file(dir_log))
     {
         // 자판기 로그 존재
-        cout << "|  data::DataManagement : 자판기 기본 로그를 불러옵니다." << endl;
+        cout << "|  data::DataManagement : ("+ name +") 자판기 기본 로그를 불러옵니다." << endl;
     }
     else
     {
         // 자판기 데이터가 없다면
-        cout << "|  data::DataManagement : 자판기를 기본 로그를 생성합니다." << endl;
+        cout << "|  data::DataManagement : ("+ name +") 자판기를 기본 로그를 생성합니다." << endl;
         
         // 로그 파일 생성
         ofstream(dir_log.string()).close();
@@ -91,7 +94,7 @@ DataManagement::DataManagement(std::string name)
     // 상태 관련 메시지 설정
     status_message = "구매하실 음료수를 선택하세요.";
     
-    cout << "|  data::DataManagement : 완료." << endl;
+    cout << "|  data::DataManagement : ("+ name +") 완료." << endl;
 }
 
 // 데이터 관련
@@ -107,7 +110,7 @@ void DataManagement::load()
     ifstream fin(dir_data.string());
     if (!fin)
     {
-        throw std::runtime_error("data::DataManagement::load() : 자판기 데이터 파일을 열 수 없습니다.");
+        throw std::runtime_error("data::DataManagement::load() : ("+ name +") 자판기 데이터 파일을 열 수 없습니다.");
     }
     
     while (getline(fin, buf))   // 엔터 제거해서 받음
