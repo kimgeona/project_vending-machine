@@ -1,6 +1,6 @@
-#include <gui_LoginPage.hpp>
+#include <gui_client_LoginPage.hpp>
 
-namespace gui
+namespace gui_client
 {
 
 

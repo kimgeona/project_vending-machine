@@ -1,6 +1,6 @@
 #pragma once
-#ifndef gui_functions_hpp
-#define gui_functions_hpp
+#ifndef gui_client_functions_hpp
+#define gui_client_functions_hpp
 
 // c++17
 #include <thread>
@@ -9,15 +9,16 @@
 #include <string>
 
 // 나의 라이브러리
-#include <gui_MainPage.hpp>
-#include <gui_LoginPage.hpp>
-#include <gui_AdministratorPage.hpp>
+#include <data.hpp>
+#include <gui_client_MainPage.hpp>
+#include <gui_client_LoginPage.hpp>
+#include <gui_client_AdministratorPage.hpp>
 
 // 전역 변수
 extern data::DataManagement dm;
 extern std::map<std::string, Gtk::Widget*> widget;
 
-namespace gui
+namespace gui_client
 {
 
 
@@ -80,4 +81,4 @@ void refresh_AdministratorPage_MyGridSales();
 
 }
 
-#endif /* gui_functions_hpp */
+#endif /* gui_client_functions_hpp */

@@ -1,19 +1,19 @@
 #pragma once
-#ifndef gui_MainPage_hpp
-#define gui_MainPage_hpp
+#ifndef gui_client_MainPage_hpp
+#define gui_client_MainPage_hpp
 
 // c++17
 #include <gtkmm.h>
 
 // 나의 라이브러리
-#include <gui_functions.hpp>
 #include <data.hpp>
+#include <gui_client_functions.hpp>
 
 // 전역 변수
 extern data::DataManagement dm;
 extern std::map<std::string, Gtk::Widget*> widget;
 
-namespace gui
+namespace gui_client
 {
 
 
@@ -105,4 +105,4 @@ protected:
 
 }
 
-#endif /* gui_MainPage_hpp */
+#endif /* gui_client_MainPage_hpp */

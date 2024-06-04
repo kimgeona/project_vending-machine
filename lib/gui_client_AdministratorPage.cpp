@@ -1,6 +1,6 @@
-#include <gui_AdministratorPage.hpp>
+#include <gui_client_AdministratorPage.hpp>
 
-namespace gui
+namespace gui_client
 {
 
 

@@ -4,7 +4,7 @@
 #include <map>
 
 // 나의 라이브러리
-#include <gui.hpp>
+#include <gui_client.hpp>
 #include <data.hpp>
 
 // 전역 변수
@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
     
     // 2. 프로그램 실행
     cout << "Vending-Machine : GUI 어플리케이션을 실행합니다." << endl;
-    auto n = Gtk::Application::create("kimgeona.VendingMachine.client")->make_window_and_run<gui::MainPage>(argc, argv);
+    auto n = Gtk::Application::create("kimgeona.VendingMachine.client")->make_window_and_run<gui_client::MainPage>(argc, argv);
     cout << "Vending-Machine : GUI 어플리케이션을 종료합니다." << endl;
     
     return n;
