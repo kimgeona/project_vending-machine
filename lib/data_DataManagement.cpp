@@ -41,6 +41,11 @@ DataManagement::DataManagement(std::string name)
         // 자판기 데이터 존재
         cout << "|  data::DataManagement : ("+ name +") 자판기 데이터를 불러옵니다." << endl;
         
+        // 만약을 위한 기본값 설정
+        state   = "off";
+        ID      = "admin";
+        PW      = "admin";
+        
         // 데이터 불러오기
         load();
     }
