@@ -3,10 +3,7 @@
 #define gui_client_functions_hpp
 
 // c++17
-#include <thread>
-#include <chrono>
 #include <gtkmm.h>
-#include <string>
 
 // 나의 라이브러리
 #include <data.hpp>
