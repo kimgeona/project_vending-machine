@@ -1,3 +1,5 @@
+state=on
+
 ID=admin_id
 PW=admin_pw
 
