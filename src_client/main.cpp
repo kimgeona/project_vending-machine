@@ -18,11 +18,17 @@ int main(int argc, char* argv[])
     // 1. 프로그램 준비
     cout << "Vending-Machine : 데이터 관리자를 생성합니다." << endl;
     dm = data::DataManagement("test");
+    dm.state = "on";
+    dm.save();
     
     // 2. 프로그램 실행
     cout << "Vending-Machine : GUI 어플리케이션을 실행합니다." << endl;
     auto n = Gtk::Application::create("kimgeona.VendingMachine.client")->make_window_and_run<gui_client::MainPage>(argc, argv);
     cout << "Vending-Machine : GUI 어플리케이션을 종료합니다." << endl;
+    
+    // 3. 프로그램 종료
+    dm.state = "off";
+    dm.save();
     
     return n;
 }

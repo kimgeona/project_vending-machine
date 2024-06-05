@@ -21,8 +21,9 @@ namespace data
 class DataManagement
 {
 public:
-    // 자판기 이름
-    std::string name;   // 자판기 이름
+    // 데이터 관리자 타입
+    std::string name;   // 이름
+    std::string state;  // 상태 : "on", "off"
     
 private:
     // 자판기 데이터 경로

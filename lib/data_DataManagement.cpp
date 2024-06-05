@@ -11,6 +11,7 @@ DataManagement::DataManagement()
     using namespace std::filesystem;
     
     name = "";
+    state = "";
     dir_data = path("");
     dir_log = path("");
     ID = "";
@@ -27,7 +28,7 @@ DataManagement::DataManagement(std::string name)
     using namespace std;
     using namespace std::filesystem;
     
-    // 자판기 이름 저장
+    // 데이터 관리자 타입 저장
     this->name = name;
     
     // 자판기 데이터 경로 저장
@@ -47,6 +48,9 @@ DataManagement::DataManagement(std::string name)
     {
         // 자판기 데이터가 없다면
         cout << "|  data::DataManagement : ("+ name +") 자판기를 새로 생성합니다." << endl;
+        
+        // 데이터 관리자 타입 저장
+        this->state = "off";
         
         // 사용자 계정 생성
         ID = "admin";
@@ -122,6 +126,13 @@ void DataManagement::load()
         // 전처리된 문자열이 없으면 건너뛰기
         if (words.empty()) continue;
         
+        // 자판기 상태 정보 읽기
+        if (words[0]=="state")
+        {
+            state = words[1];
+            continue;
+        }
+        
         // 사용자 계정 정보 읽기
         if (words[0]=="ID")
         {
@@ -173,6 +184,9 @@ void DataManagement::save()
     
     // 파일 생성
     ofstream fout(dir_data.string());
+    
+    // 현재 자판기 상태 저장
+    fout << "state=" << state << endl << endl;
     
     // 사용자 계정 정보 저장
     fout << "ID=" << ID << endl;

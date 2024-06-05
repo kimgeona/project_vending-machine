@@ -72,6 +72,9 @@ void refresh_ListPage_MyListingScrolledWindow()
         // 버튼 설정
         dynamic_cast<Gtk::Button*>(widget[id])->set_expand();
         
+        // 버튼 설정
+        if (pair.second.state == "off") dynamic_cast<Gtk::Button*>(widget[id])->set_sensitive(false);
+        
         // 버튼 이벤트 연결
         dynamic_cast<Gtk::Button*>(widget[id])->signal_clicked().connect(sigc::bind(sigc::ptr_fun(open_AdministratorPage), pair.second.name));
         
