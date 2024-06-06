@@ -87,11 +87,20 @@ void refresh_ListPage_MyListingScrolledWindow()
 // 관리자 페이지 열기
 void open_AdministratorPage(std::string name)
 {
-    // AdministratorPage 생성
-    widget[name+"::AdministratorPage"] = Gtk::make_managed<gui_server::AdministratorPage>(name);
-    
-    // AdministratorPage 열기
-    dynamic_cast<Gtk::Window*>(widget[name+"::AdministratorPage"])->show();
+    // 이미 존재하는 페이지인지 확인
+    if (widget.find(name+"::AdministratorPage") == widget.end())
+    {
+        // AdministratorPage 생성
+        widget[name+"::AdministratorPage"] = Gtk::make_managed<gui_server::AdministratorPage>(name);
+        
+        // AdministratorPage 열기
+        dynamic_cast<Gtk::Window*>(widget[name+"::AdministratorPage"])->show();
+    }
+    else
+    {
+        // AdministratorPage 열기
+        dynamic_cast<Gtk::Window*>(widget[name+"::AdministratorPage"])->present();
+    }
 }
 
 // ======== AdministratorPage ========

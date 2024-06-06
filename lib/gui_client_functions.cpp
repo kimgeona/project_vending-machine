@@ -74,11 +74,20 @@ void login()
     // 로그인 성공
     dynamic_cast<Gtk::Button*>(widget["MyGridLogin::message"])->set_label("로그인 성공.");
     
-    // AdministratorPage 생성
-    widget["AdministratorPage"] = Gtk::make_managed<gui_client::AdministratorPage>();
-    
-    // AdministratorPage 열기
-    dynamic_cast<Gtk::Window*>(widget["AdministratorPage"])->show();
+    // 이미 존재하는 페이지인지 확인
+    if (widget.find("AdministratorPage") == widget.end())
+    {
+        // AdministratorPage 생성
+        widget["AdministratorPage"] = Gtk::make_managed<gui_client::AdministratorPage>();
+        
+        // AdministratorPage 열기
+        dynamic_cast<Gtk::Window*>(widget["AdministratorPage"])->show();
+    }
+    else
+    {
+        // AdministratorPage 열기
+        dynamic_cast<Gtk::Window*>(widget["AdministratorPage"])->present();
+    }
     
     // LoginPage 닫기
     dynamic_cast<Gtk::Window*>(widget["LoginPage"])->destroy();
