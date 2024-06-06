@@ -78,6 +78,12 @@ void refresh_ListPage_MyListingScrolledWindow()
         // 버튼 배치하기
         dynamic_cast<Gtk::Grid*>(widget["MyListingScrolledWindow::gd"])->attach(*dynamic_cast<Gtk::Button*>(widget[id]), c, r);
         
+        // 버튼과 관련된 AdministratorPage창이 존재하면 내용 업데이트
+        if (widget.find(pair.second.name+"::AdministratorPage") != widget.end())
+        {
+            refresh_AdministratorPage_MyGridSidebar(pair.second.name);
+        }
+        
         // 버튼 갯수 업데이트
         if (c<1)    c++;
         else        c--, r++;
