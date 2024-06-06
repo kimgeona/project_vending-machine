@@ -48,9 +48,6 @@ void refresh_ListPage_MyListingScrolledWindow()
         
         // grid에 부착했던 기존 버튼 제거
         dynamic_cast<Gtk::Grid*>(widget["MyListingScrolledWindow::gd"])->remove(*dynamic_cast<Gtk::Button*>(widget[id]));
-        
-        // 기존 버튼 메모리 해제
-        delete dynamic_cast<Gtk::Button*>(widget[id]);
     }
     
     // 새로운 버튼 생성
@@ -67,7 +64,7 @@ void refresh_ListPage_MyListingScrolledWindow()
         s += "Update : 5분전\n";
         
         // 버튼 생성, 저장
-        widget[id] = new Gtk::Button(s);
+        widget[id] = Gtk::make_managed<Gtk::Button>(s);
         
         // 버튼 설정
         dynamic_cast<Gtk::Button*>(widget[id])->set_expand();
@@ -91,7 +88,7 @@ void refresh_ListPage_MyListingScrolledWindow()
 void open_AdministratorPage(std::string name)
 {
     // AdministratorPage 생성
-    widget[name+"::AdministratorPage"] = new gui_server::AdministratorPage(name);
+    widget[name+"::AdministratorPage"] = Gtk::make_managed<gui_server::AdministratorPage>(name);
     
     // AdministratorPage 열기
     dynamic_cast<Gtk::Window*>(widget[name+"::AdministratorPage"])->show();

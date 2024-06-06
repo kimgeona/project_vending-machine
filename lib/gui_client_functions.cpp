@@ -44,7 +44,7 @@ void show_login_page()
     // 버튼들 비활성화
     
     // LoginPage 생성
-    widget["LoginPage"] = new gui_client::LoginPage();
+    widget["LoginPage"] = Gtk::make_managed<gui_client::LoginPage>();
     
     // LoginPage 열기
     dynamic_cast<Gtk::Window*>(widget["LoginPage"])->show();
@@ -75,7 +75,7 @@ void login()
     dynamic_cast<Gtk::Button*>(widget["MyGridLogin::message"])->set_label("로그인 성공.");
     
     // AdministratorPage 생성
-    widget["AdministratorPage"] = new gui_client::AdministratorPage();
+    widget["AdministratorPage"] = Gtk::make_managed<gui_client::AdministratorPage>();
     
     // AdministratorPage 열기
     dynamic_cast<Gtk::Window*>(widget["AdministratorPage"])->show();
