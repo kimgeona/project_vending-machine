@@ -119,7 +119,7 @@ void DataManagement::load()
     ifstream fin(dir_data.string());
     if (!fin)
     {
-        throw std::runtime_error("data::DataManagement::load() : ("+ name +") 자판기 데이터 파일을 열 수 없습니다.");
+        throw std::runtime_error("data::DataManagement::load() : 자판기("+ name +") 데이터 파일을 열 수 없습니다.");
     }
     
     while (getline(fin, buf))   // 엔터 제거해서 받음
@@ -178,6 +178,74 @@ void DataManagement::load()
     
     // 읽어들인 파일 저장
     save();
+}
+void DataManagement::reload()
+{
+    using namespace std;
+    using namespace std::filesystem;
+    
+    // 변수 생성
+    string buf;
+    
+    // 파일 열기
+    ifstream fin(dir_data.string());
+    if (!fin)
+    {
+        throw std::runtime_error("data::DataManagement::load() : 자판기("+ name +") 데이터 파일을 열 수 없습니다.");
+    }
+    
+    while (getline(fin, buf))   // 엔터 제거해서 받음
+    {
+        // 읽어들인 문자열 전처리
+        buf = util::my_strip(buf);                          // 좌우 공백 제거
+        vector<string> words = util::my_split(buf, "=");    // "="을 기준으로 split
+        
+        // 전처리된 문자열이 없으면 건너뛰기
+        if (words.empty()) continue;
+        
+        // 사용자 계정 정보 읽기
+        if (words[0]=="ID")
+        {
+            ID = words[1];
+            continue;
+        }
+        if (words[0]=="PW")
+        {
+            PW = words[1];
+            continue;
+        }
+        
+        // 음료 슬롯 초기화
+        for (int i=0; i<6; i++) slot_drink[i].clear();
+        
+        // 음료 정보 읽기
+        if (words[0].find("drink")==0)
+        {
+            vector<string> type = util::my_split(words[0], "-");
+            vector<string> data = util::my_split(words[1], "-");
+            
+            slot_drink[stoi(type[1])].push_back(Drink(data[0], stoi(data[1])));
+            
+            continue;
+        }
+        
+        // 잔돈 슬롯 초기화
+        for (int i=0; i<6; i++) slot_coin[i].clear();
+        
+        // 잔돈 정보 읽기
+        if (words[0].find("coin")==0)
+        {
+            vector<string> type = util::my_split(words[0], "-");
+            vector<string> data = util::my_split(words[1], "-");
+            
+            slot_coin[stoi(type[1])].push(Coin(stoi(data[0]), stoi(data[1])));
+            
+            continue;
+        }
+    }
+    
+    // 파일 스트림 닫기
+    fin.close();
 }
 void DataManagement::save()
 {

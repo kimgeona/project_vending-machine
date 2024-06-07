@@ -58,6 +58,7 @@ public:
     
     // 데이터 관련
     void load();    // 데이터 불러오기
+    void reload();  // 데이터 다시 불러오기
     void save();    // 데이터 저장
     
     // 정보 얻기
