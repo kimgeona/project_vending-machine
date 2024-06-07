@@ -22,6 +22,7 @@ class Pipe
      주의 :
      Pipe() 클래스는 프로세스 하나당 1개만 생성할 것.
      Pipe("server")는 모든 프로세스를 통틀어서 1개만 생성할 것.
+     Pipe() 클래스를 [복사 생성자] 또는 [대입 연산자]를 이용하여 생성하지 말 것.
      
      */
     
@@ -46,6 +47,7 @@ private:
     std::string                     name;
     
 public:
+    // 생성자
     Pipe(std::string type, std::string name="client_name")
     {
         // 변수들 초기화
@@ -66,6 +68,8 @@ public:
         // 클라이언트와 서버간 연결 쓰레드 시작
         std::thread(&Pipe::thread_connect, this).detach();
     }
+    
+    // 소멸자
     ~Pipe()
     {
         // 소켓 해제 하기
@@ -138,6 +142,9 @@ private:
                 {
                     std::this_thread::sleep_for(std::chrono::seconds(1));
                 }
+                
+                // 상태 출력
+                printf("|  network::Pipe : 서버(%s:%u)와 연결이 끊어졌습니다.\n", server_sock.get_ip().c_str(), server_sock.get_port());
                 
                 // 서버와 연결이 끊기면
                 server_sock.close();
