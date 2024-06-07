@@ -39,7 +39,7 @@ DataManagement::DataManagement(std::string name)
     if (exists(dir_data) && is_regular_file(dir_data))
     {
         // 자판기 데이터 존재
-        cout << "|  data::DataManagement : ("+ name +") 자판기 데이터를 불러옵니다." << endl;
+        cout << "|  data::DataManagement : 자판기("+ name +") 데이터를 불러옵니다." << endl;
         
         // 만약을 위한 기본값 설정
         state   = "off";
@@ -52,7 +52,7 @@ DataManagement::DataManagement(std::string name)
     else
     {
         // 자판기 데이터가 없다면
-        cout << "|  data::DataManagement : ("+ name +") 자판기를 새로 생성합니다." << endl;
+        cout << "|  data::DataManagement : 자판기("+ name +")를 새로 생성합니다." << endl;
         
         // 데이터 관리자 타입 저장
         this->state = "off";
@@ -84,12 +84,12 @@ DataManagement::DataManagement(std::string name)
     if (exists(dir_log) && is_regular_file(dir_log))
     {
         // 자판기 로그 존재
-        cout << "|  data::DataManagement : ("+ name +") 자판기 기본 로그를 불러옵니다." << endl;
+        cout << "|  data::DataManagement : 자판기("+ name +") 로그를 불러옵니다." << endl;
     }
     else
     {
         // 자판기 데이터가 없다면
-        cout << "|  data::DataManagement : ("+ name +") 자판기를 기본 로그를 생성합니다." << endl;
+        cout << "|  data::DataManagement : 자판기("+ name +") 로그를 생성합니다." << endl;
         
         // 로그 파일 생성
         ofstream(dir_log.string()).close();
@@ -103,7 +103,7 @@ DataManagement::DataManagement(std::string name)
     // 상태 관련 메시지 설정
     status_message = "구매하실 음료수를 선택하세요.";
     
-    cout << "|  data::DataManagement : ("+ name +") 완료." << endl;
+    cout << "|  data::DataManagement : 자판기("+ name +") 준비 완료." << endl;
 }
 
 // 데이터 관련
@@ -219,6 +219,16 @@ void DataManagement::save()
     
     // 파일 스트림 닫기
     fout.close();
+}
+
+// 정보 관련
+std::string DataManagement::get_dir_data()
+{
+    return dir_data.string();
+}
+std::string DataManagement::get_dir_log()
+{
+    return dir_log.string();
 }
 
 // 정보 수정

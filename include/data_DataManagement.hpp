@@ -60,6 +60,10 @@ public:
     void load();    // 데이터 불러오기
     void save();    // 데이터 저장
     
+    // 정보 얻기
+    std::string get_dir_data();
+    std::string get_dir_log();
+    
     // 정보 수정
     void set_id(std::string id);    // 아이디 설정
     void set_pw(std::string pw);    // 비밀번호 설정
