@@ -125,19 +125,18 @@ private:
             // 클라이언트와 연결
             while (!threads_exit.load())
             {
-                
                 // 클라이언트 소켓 얻기
-                Socket client = listen_sock.accept();
+                Socket sock = listen_sock.accept();
                 
                 // 클라이언트 소켓 확인
-                if (!client.state_use)
+                if (!sock.state_use)
                 {
                     std::this_thread::sleep_for(std::chrono::milliseconds(100));
                     continue;
                 }
                 
                 // 클라이언트 이름 얻기
-                std::string name = client.recv();
+                std::string name = sock.recv();
                 
                 // 클라이언트 파일 얻기
                 {
@@ -149,8 +148,8 @@ private:
                     std::string file_name2 = name + "_log.txt";
                     
                     // 파일 데이터 받기
-                    std::string file_data = client.recv();
-                    std::string file_data2 = client.recv();
+                    std::string file_data = sock.recv();
+                    std::string file_data2 = sock.recv();
                     
                     // 기존 파일 제거
                     if (exists(path(file_name))) remove(path(file_name));
@@ -192,11 +191,11 @@ private:
                     }
                     
                     // 소켓 저장
-                    client_sock[name] = client;
+                    client_sock[name] = sock;
                 }
                 
                 // 상태 출력
-                printf("|  network::Pipe : 클라이언트(%s:%u)와 연결되었습니다.\n", client.get_ip().c_str(), client.get_port());
+                printf("|  network::Pipe : 클라이언트(%s:%u)와 연결되었습니다.\n", sock.get_ip().c_str(), sock.get_port());
             }
         }
         
@@ -205,54 +204,61 @@ private:
         {
             while (!threads_exit.load())
             {
+                // 소켓 생성
+                Socket sock = Socket(IP, PORT);
+                
+                // 서버와 연결
+                sock.connect();
+                
+                // 클라이언트 소켓 확인
+                if (!sock.state_use)
+                {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                    continue;
+                }
+                
+                // 서버에 이름 전송
+                sock.send(name);
+                
+                // 서버에 파일 전송
+                {
+                    // 파일 불러오기
+                    std::ifstream fin(name + "_data.txt"), fin2(name + "_log.txt");
+                    if (!fin || !fin2)
+                    {
+                        throw std::runtime_error("network::Pipe::thread_connect() : 파일("+ name +")을 열 수 없습니다.");
+                    }
+                    std::ostringstream oss, oss2;
+                    oss << fin.rdbuf();
+                    oss2 << fin2.rdbuf();
+                    
+                    // 파일 데이터 추출
+                    std::string data = oss.str();
+                    std::string data2 = oss2.str();
+                    
+                    // 파일 데이터 전송
+                    sock.send(data);
+                    sock.send(data2);
+                    
+                    // 파일 닫기
+                    fin.close();
+                    fin2.close();
+                    if (!fin | !fin2)
+                    {
+                        throw std::runtime_error("network::Pipe::thread_connect() : 파일("+ name +")을 닫는중 오류가 발생했습니다.");
+                    }
+                }
+                
+                // 화면 새로 고침 명령어 전송
+                sock.send("refresh");
+                
+                // 클라이언트 소켓 저장
                 {
                     // 공유자원 잠금
                     std::lock_guard<std::mutex> lock(pipe_mtx);
                     
-                    // 소켓 생성
-                    server_sock = Socket(IP, PORT);
-                    
-                    // 서버와 연결
-                    server_sock.connect();
-                    
-                    // 클라이언트 소켓 확인
-                    if (!server_sock.state_use)
-                    {
-                        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                        continue;
-                    }
-                    
-                    // 서버에 이름 전송
-                    server_sock.send(name);
-                    
-                    // 서버에 파일 전송
-                    {
-                        // 파일 불러오기
-                        std::ifstream fin(name + "_data.txt"), fin2(name + "_log.txt");
-                        if (!fin || !fin2)
-                        {
-                            throw std::runtime_error("network::Pipe::thread_connect() : 파일("+ name +")을 열 수 없습니다.");
-                        }
-                        std::ostringstream oss, oss2;
-                        oss << fin.rdbuf();
-                        oss2 << fin2.rdbuf();
-                        
-                        // 파일 데이터 추출
-                        std::string data = oss.str();
-                        std::string data2 = oss2.str();
-                        
-                        // 파일 데이터 전송
-                        server_sock.send(data);
-                        server_sock.send(data2);
-                        
-                        // 파일 닫기
-                        fin.close();
-                        fin2.close();
-                        if (!fin | !fin2)
-                        {
-                            throw std::runtime_error("network::Pipe::thread_connect() : 파일("+ name +")을 닫는중 오류가 발생했습니다.");
-                        }
-                    }
+                    // 소켓 저장
+                    server_sock = sock;
                 }
                 
                 // 상태 출력
@@ -540,6 +546,21 @@ public:
         {
             throw std::runtime_error("network::Pipe::recv() : 클라이언트만 사용 가능합니다.");
         }
+    }
+    
+public:
+    // IP 주소 얻기
+    std::string get_ip(const std::string client_name="")
+    {
+        if (server) return client_sock[client_name].get_ip();
+        if (client) return server_sock.get_ip();
+    }
+    
+    // PORT 번호 얻기
+    std::string get_port(const std::string client_name="")
+    {
+        if (server) return std::to_string(client_sock[client_name].get_port());
+        if (client) return std::to_string(server_sock.get_port());
     }
 };
 
