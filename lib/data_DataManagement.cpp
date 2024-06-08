@@ -103,7 +103,7 @@ DataManagement::DataManagement(std::string name)
     // 상태 관련 메시지 설정
     status_message = "구매하실 음료수를 선택하세요.";
     
-    cout << "|  data::DataManagement : 자판기("+ name +") 데이터를 불러왔습니다." << endl;
+    //cout << "|  data::DataManagement : 자판기("+ name +") 데이터를 불러왔습니다." << endl;
 }
 
 // 데이터 관련
