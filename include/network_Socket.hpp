@@ -86,26 +86,21 @@ public:
         // 소켓 블로킹 설정
         if (time_out == 0)
         {
-            int count = 0;
             int flags = -1;
             
             try
             {
                 // 현재 파일 속성 읽기
-                while ((flags = fcntl(sock, F_GETFL, 0)) == -1)
+                if ((flags = fcntl(sock, F_GETFL, 0)) == -1)
                 {
-                    if (count++ > 5) throw std::runtime_error("fcntl error 1");
-                    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                    throw std::runtime_error("fcntl error 1");
                 }
-                count = 0;
                 
                 // 논블로킹 모드로 변경
-                while (fcntl(sock, F_SETFL, flags | O_NONBLOCK) == -1)
+                if (fcntl(sock, F_SETFL, flags | O_NONBLOCK) == -1)
                 {
-                    if (count++ > 4) throw std::runtime_error("fcntl error 2");
-                    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                    throw std::runtime_error("fcntl error 2");
                 }
-                count = 0;
                 
                 // 소켓 정보 업데이트
                 info_time_out = time_out;
@@ -198,26 +193,21 @@ public:
         // 소켓 블로킹 설정
         if (time_out == 0)
         {
-            int count = 0;
             int flags = -1;
             
             try
             {
                 // 현재 파일 속성 읽기
-                while ((flags = fcntl(sock, F_GETFL, 0)) == -1)
+                if ((flags = fcntl(sock, F_GETFL, 0)) == -1)
                 {
-                    if (count++ > 5) throw std::runtime_error("fcntl error 1");
-                    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                    throw std::runtime_error("fcntl error 1");
                 }
-                count = 0;
                 
                 // 논블로킹 모드로 변경
-                while (fcntl(sock, F_SETFL, flags | O_NONBLOCK) == -1)
+                if (fcntl(sock, F_SETFL, flags | O_NONBLOCK) == -1)
                 {
-                    if (count++ > 4) throw std::runtime_error("fcntl error 2");
-                    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                    throw std::runtime_error("fcntl error 2");
                 }
-                count = 0;
                 
                 // 소켓 정보 업데이트
                 info_time_out = time_out;
