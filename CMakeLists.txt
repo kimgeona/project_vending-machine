@@ -2,10 +2,15 @@
 cmake_minimum_required(VERSION 3.28)
 project(
     Vending-Machine
-    VERSION 0.0
+    VERSION 1.0.0
     DESCRIPTION "Vending Machine for some drinks."
     LANGUAGES CXX
 )
+
+# ==== 프로젝트 버전 정보를 컴파일러 옵션으로 전달합니다. ====
+add_compile_definitions(VM_VERSION_MAJOR=${PROJECT_VERSION_MAJOR})
+add_compile_definitions(VM_VERSION_MINOR=${PROJECT_VERSION_MINOR})
+add_compile_definitions(VM_VERSION_PATCH=${PROJECT_VERSION_PATCH})
 
 # ==== 패키지 ====
 find_package(PkgConfig REQUIRED)                                # 외부 시스템에서 패키지 검색
