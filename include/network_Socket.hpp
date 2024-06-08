@@ -11,6 +11,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <fcntl.h>
 #include <netdb.h>
 #include <unistd.h>
 #include <cstring>
@@ -36,6 +37,9 @@ class Socket
 public:
     // 공유자원 잠금
     std::mutex socket_mtx;
+    
+    // 소켓 정보
+    bool info_block;
     
     // 소켓 상태
     bool state_sock;
@@ -63,6 +67,9 @@ public:
         // 소켓 길이 초기화
         sock_len = sizeof(sock_addr);
         
+        // 소켓 정보 설정
+        info_block = false;
+        
         // 소켓 상태 설정
         state_sock = false;
         state_sock_addr = false;
@@ -71,10 +78,57 @@ public:
         state_listen = false;
         state_use = false;
     }
-    Socket(const unsigned long IP, const unsigned short PORT)
+    Socket(const unsigned long IP, const unsigned short PORT, bool non_block=false)
     {
         // 소켓 생성 및 초기화
         while ((sock = socket(AF_INET, SOCK_STREAM, 0)) == -1);
+        
+        // 소켓 블로킹 설정
+        if (non_block)
+        {
+            int count = 0;
+            int flags = -1;
+            
+            try
+            {
+                // 현재 파일 속성 읽기
+                while ((flags = fcntl(sock, F_GETFL, 0)) == -1)
+                {
+                    if (count > 5) std::runtime_error("fcntl error 1");
+                    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                }
+                count = 0;
+                
+                // 논블로킹 모드로 변경
+                while (fcntl(sock, F_SETFL, flags | O_NONBLOCK) == -1)
+                {
+                    if (count > 4) std::runtime_error("fcntl error 2");
+                    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                }
+                count = 0;
+                
+                // 소켓 정보 업데이트
+                info_block = true;
+            }
+            catch (const std::runtime_error& e)
+            {
+                if      (std::string(e.what())=="fcntl error 1");
+                else if (std::string(e.what())=="fcntl error 2")
+                {
+                    // 소켓 닫기
+                    ::close(sock);
+                    
+                    // 소켓 재생성 및 초기화
+                    while ((sock = socket(AF_INET, SOCK_STREAM, 0)) == -1);
+                }
+                else throw;
+                
+                // 소켓 정보 업데이트
+                info_block = false;
+                
+                printf("|   network::Socket() : 소켓을 블로킹으로 생성할 수 없어 그냥 생성합니다.");
+            }
+        }
         
         // 소켓 주소 구조체 초기화
         memset(&sock_addr, 0, sizeof(sock_addr));
@@ -93,10 +147,57 @@ public:
         state_listen = false;
         state_use = false;
     }
-    Socket(const char* IP, const unsigned short PORT)
+    Socket(const char* IP, const unsigned short PORT, bool non_block=false)
     {
         // 소켓 생성 및 초기화
         while ((sock = socket(AF_INET, SOCK_STREAM, 0)) == -1);
+        
+        // 소켓 블로킹 설정
+        if (non_block)
+        {
+            int count = 0;
+            int flags = -1;
+            
+            try
+            {
+                // 현재 파일 속성 읽기
+                while ((flags = fcntl(sock, F_GETFL, 0)) == -1)
+                {
+                    if (count > 5) std::runtime_error("fcntl error 1");
+                    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                }
+                count = 0;
+                
+                // 논블로킹 모드로 변경
+                while (fcntl(sock, F_SETFL, flags | O_NONBLOCK) == -1)
+                {
+                    if (count > 4) std::runtime_error("fcntl error 2");
+                    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                }
+                count = 0;
+                
+                // 소켓 정보 업데이트
+                info_block = true;
+            }
+            catch (const std::runtime_error& e)
+            {
+                if      (std::string(e.what())=="fcntl error 1");
+                else if (std::string(e.what())=="fcntl error 2")
+                {
+                    // 소켓 닫기
+                    ::close(sock);
+                    
+                    // 소켓 재생성 및 초기화
+                    while ((sock = socket(AF_INET, SOCK_STREAM, 0)) == -1);
+                }
+                else throw;
+                
+                // 소켓 정보 업데이트
+                info_block = false;
+                
+                printf("|   network::Socket() : 소켓을 블로킹으로 생성할 수 없어 그냥 생성합니다.");
+            }
+        }
         
         // 소켓 주소 구조체 초기화
         memset(&sock_addr, 0, sizeof(sock_addr));
@@ -126,6 +227,7 @@ public:
         this->sock = other.sock;
         this->sock_addr = other.sock_addr;
         this->sock_len = other.sock_len;
+        this->info_block = other.info_block;
         this->state_sock = other.state_sock;
         this->state_sock_addr = other.state_sock_addr;
         this->state_sock_len = other.state_sock_len;
@@ -148,6 +250,7 @@ public:
             this->sock = other.sock;
             this->sock_addr = other.sock_addr;
             this->sock_len = other.sock_len;
+            this->info_block = other.info_block;
             this->state_sock = other.state_sock;
             this->state_sock_addr = other.state_sock_addr;
             this->state_sock_len = other.state_sock_len;
@@ -224,15 +327,41 @@ public:
             Socket new_sock;
             
             // client 소켓 받기
-            while ((new_sock.sock = ::accept(this->sock, (struct sockaddr*)&new_sock.sock_addr, &new_sock.sock_len)) == -1);
-            
-            // 소켓 상태 설정
-            new_sock.state_sock = true;
-            new_sock.state_sock_addr = true;
-            new_sock.state_sock_len = true;
-            new_sock.state_bind = false;
-            new_sock.state_listen = false;
-            new_sock.state_use = true;
+            if (info_block)
+            {
+                if ((new_sock.sock = ::accept(this->sock, (struct sockaddr*)&new_sock.sock_addr, &new_sock.sock_len)) == -1)
+                {
+                    // 소켓 상태 설정
+                    new_sock.state_sock = false;
+                    new_sock.state_sock_addr = false;
+                    new_sock.state_sock_len = false;
+                    new_sock.state_bind = false;
+                    new_sock.state_listen = false;
+                    new_sock.state_use = false;
+                }
+                else
+                {
+                    // 소켓 상태 설정
+                    new_sock.state_sock = true;
+                    new_sock.state_sock_addr = true;
+                    new_sock.state_sock_len = true;
+                    new_sock.state_bind = false;
+                    new_sock.state_listen = false;
+                    new_sock.state_use = true;
+                }
+            }
+            else
+            {
+                while ((new_sock.sock = ::accept(this->sock, (struct sockaddr*)&new_sock.sock_addr, &new_sock.sock_len)) == -1);
+                
+                // 소켓 상태 설정
+                new_sock.state_sock = true;
+                new_sock.state_sock_addr = true;
+                new_sock.state_sock_len = true;
+                new_sock.state_bind = false;
+                new_sock.state_listen = false;
+                new_sock.state_use = true;
+            }
             
             // client 소켓 반환
             return new_sock;
