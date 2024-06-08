@@ -12,7 +12,10 @@
 // 전역 변수
 data::DataManagement                    dm;
 std::map<std::string, Gtk::Widget*>     widget;
-std::map<std::string, Glib::Dispatcher> dispatchers;
+
+// 통신 모듈
+network::Pipe       pipe_to_server("client", "test");
+Glib::Dispatcher    dispatcher;
 
 int main(int argc, char* argv[])
 {
@@ -22,8 +25,8 @@ int main(int argc, char* argv[])
     dm.state = "on";
     dm.save();
     
-    // 2. 소켓 통신 시작하기
-    network::Pipe pipe("client", "test");
+    // 2. 서버와 연결
+    pipe_to_server.start();
     
     // 3. 프로그램 실행
     std::cout << "Vending-Machine : GUI 어플리케이션을 실행합니다." << std::endl;
@@ -31,8 +34,7 @@ int main(int argc, char* argv[])
     std::cout << "Vending-Machine : GUI 어플리케이션을 종료합니다." << std::endl;
     
     // 4. 프로그램 종료
-    dm.state = "off";
-    dm.save();
+    pipe_to_server.end();
     
-    exit(n);
+    return n;
 }
