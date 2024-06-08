@@ -548,6 +548,20 @@ public:
         }
     }
     
+    // client 전용 : 이름 변경
+    void change_name(std::string name)
+    {
+        if (client)
+        {
+            if (!is_connected())    this->name = name;
+            else                    printf("|  network::Pipe::change_name() : 서버와 연결되어 있어 이름 변경이 불가능 합니다.\n");
+        }
+        else
+        {
+            throw std::runtime_error("network::Pipe::change_name() : 클라이언트만 사용 가능합니다.");
+        }
+    }
+    
 public:
     // IP 주소 얻기
     std::string get_ip(const std::string client_name="")
