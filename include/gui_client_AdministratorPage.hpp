@@ -122,6 +122,7 @@ class AdministratorPage : public Gtk::Window
 {
 public:
     AdministratorPage();
+    ~AdministratorPage();
     
 protected:
     Gtk::ScrolledWindow sw;             // 스크롤 윈도우

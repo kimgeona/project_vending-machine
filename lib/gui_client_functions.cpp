@@ -3,6 +3,174 @@
 namespace gui_client
 {
 
+
+// ======== network ========
+
+// 자판기 파일 보내기
+void send_vm_data()
+{
+    // 자판기 파일 불러오기
+    std::ifstream fin(dm.get_dir_data()), fin2(dm.get_dir_log());
+    if (!fin || !fin2)
+    {
+        throw std::runtime_error("gui_client::send_vm_data() : 자판기("+ dm.name +") 데이터 파일을 열 수 없습니다.");
+    }
+    std::ostringstream oss, oss2;
+    oss << fin.rdbuf();
+    oss2 << fin2.rdbuf();
+    
+    // 자판기 데이터 문자열
+    std::string data = oss.str();
+    std::string data2 = oss2.str();
+    
+    try
+    {
+        // 파일 다운 명령어 전송
+        pipe_to_server.send("file");
+        
+        // 자판기 데이터 파일 이름 전송
+        pipe_to_server.send(dm.get_dir_data());
+        pipe_to_server.send(dm.get_dir_log());
+        
+        // 자판기 데이터 전송
+        pipe_to_server.send(data);
+        pipe_to_server.send(data2);
+        
+        // 화면 새로 고침 명령어 전송
+        pipe_to_server.send("refresh");
+    }
+    catch (const std::exception& e)
+    {
+        printf("|  연결 상황이 좋지 않아 파일 전송을 건너뜁니다.\n");
+    }
+
+    //
+    fin.close();
+    fin2.close();
+    if (!fin | !fin2)
+    {
+        throw std::runtime_error("gui_client::send_vm_data() : 자판기("+ dm.name +") 데이터 파일을 닫는중 오류가 발생했습니다.");
+    }
+}
+
+// 소켓 확인하고 작업 실행
+void check_socket()
+{
+    // 실행 동작 구하기
+    std::string command = pipe_to_server.recv();
+    
+    // 데이터 편집
+    if (command == "edit")
+    {
+        // 편집할 데이터 이름 받기
+        std::string category = pipe_to_server.recv();
+        
+        // 아이디 수정
+        if      (category == "id")
+        {
+            // 데이터 받기
+            std::string data = pipe_to_server.recv();
+            
+            // 데이터 확인
+            if (data == "") return;
+                
+            // 데이터 적용
+            dm.set_id(data);
+            
+            // 화면 새로 고침 : AdministratorPage
+            if (widget.find("AdministratorPage")!=widget.end())
+            {
+                refresh_AdministratorPage_MyGridSidebar();
+            }
+            
+            // 수정된 자판기 파일 보내기
+            if (pipe_to_server.is_connected()) send_vm_data();
+        }
+        
+        // 비밀번호 수정
+        else if (category == "pw")
+        {
+            // 데이터 받기
+            std::string data = pipe_to_server.recv();
+            
+            // 데이터 확인
+            if (data == "") return;
+            
+            // 데이터 적용
+            dm.set_pw(data);
+            
+            // 화면 새로 고침 : AdministratorPage
+            if (widget.find("AdministratorPage")!=widget.end())
+            {
+                refresh_AdministratorPage_MyGridSidebar();
+            }
+            
+            // 수정된 자판기 파일 보내기
+            send_vm_data();
+        }
+        
+        // 음료 이름 변경
+        else if (category == "drink_name")
+        {
+            // 데이터 받기
+            std::string data = pipe_to_server.recv();
+            int slot_number = std::stoi(pipe_to_server.recv());
+            
+            // 데이터 확인
+            if (data == "") return;
+            if (slot_number < 0 || slot_number > 5) return;
+            
+            // 데이터 적용
+            dm.set_drink_name(slot_number, data);
+            
+            // 화면 새로고침 : MainPage
+            refresh_MainPage();
+            
+            // 화면 새로 고침 : AdministratorPage
+            if (widget.find("AdministratorPage")!=widget.end())
+            {
+                refresh_AdministratorPage_MyGridInventory();
+            }
+            
+            // 수정된 자판기 파일 보내기
+            send_vm_data();
+        }
+        
+        // 음료 가격 수정
+        else if (category == "drink_price")
+        {
+            // 데이터 받기
+            int data        = std::stoi(pipe_to_server.recv());
+            int slot_number = std::stoi(pipe_to_server.recv());
+            
+            // 데이터 확인
+            if (data < 0) return;
+            if (slot_number < 0 || slot_number > 5) return;
+            
+            // 데이터 적용
+            dm.set_drink_price(slot_number, data);
+            
+            // 화면 새로고침 : MainPage
+            refresh_MainPage();
+            
+            // 화면 새로 고침 : AdministratorPage
+            if (widget.find("AdministratorPage")!=widget.end())
+            {
+                refresh_AdministratorPage_MyGridInventory();
+            }
+            
+            // 수정된 자판기 파일 보내기
+            send_vm_data();
+        }
+    }
+    
+    // 콘솔 출력
+    if (command == "print")
+    {
+        printf("|  --> %s\n", pipe_to_server.recv().c_str());
+    }
+}
+
 // ======== MainPage ========
 
 // 화면 새로 고침
@@ -43,11 +211,30 @@ void show_login_page()
 {
     // 버튼들 비활성화
     
-    // LoginPage 생성
-    widget["LoginPage"] = Gtk::make_managed<gui_client::LoginPage>();
+    // 이미 존재하는 페이지인지 확인
+    if (widget.find("LoginPage") == widget.end())
+    {
+        // LoginPage 생성
+        widget["LoginPage"] = Gtk::make_managed<gui_client::LoginPage>();
+        
+        // LoginPage 열기
+        dynamic_cast<Gtk::Window*>(widget["LoginPage"])->show();
+    }
+    else
+    {
+        // LoginPage 열기
+        dynamic_cast<Gtk::Window*>(widget["LoginPage"])->present();
+    }
+}
+
+// 음료 구입
+void purchase()
+{
+    // 음료 구입
+    dm.purchase();
     
-    // LoginPage 열기
-    dynamic_cast<Gtk::Window*>(widget["LoginPage"])->show();
+    // 자판기 데이터 전송
+    if (pipe_to_server.is_connected()) send_vm_data();
 }
 
 // ======== LoginPage ========
@@ -254,6 +441,9 @@ void edit_id()
     
     // 기존 아이디 변경
     if (id != "") dm.set_id(id);
+    
+    // 자판기 데이터 전송
+    if (pipe_to_server.is_connected()) send_vm_data();
 }
 
 // 비밀번호 수정
@@ -264,6 +454,9 @@ void edit_pw()
     
     // 기존 아이디 변경
     if (pw != "") dm.set_pw(pw);
+    
+    // 자판기 데이터 전송
+    if (pipe_to_server.is_connected()) send_vm_data();
 }
 
 // 음료 이름 수정
@@ -277,6 +470,9 @@ void edit_drink_name()
     
     // 기존 음료 이름 변경
     if (name != "") dm.set_drink_name(b, name);
+    
+    // 자판기 데이터 전송
+    if (pipe_to_server.is_connected()) send_vm_data();
 }
 
 // 음료 가격 수정
@@ -290,6 +486,9 @@ void edit_drink_price()
     
     // 기존 음료 가격 변경
     if (price >= 0) dm.set_drink_price(b, price);
+    
+    // 자판기 데이터 전송
+    if (pipe_to_server.is_connected()) send_vm_data();
 }
 
 // 음료 갯수 수정
@@ -316,6 +515,9 @@ void edit_drink_num()
     
     // 입력한 갯수가 기존 갯수보다 적을 때
     if (v < n) for (int i=n; i>v; i--) dm.pop_drink(b);
+    
+    // 자판기 데이터 전송
+    if (pipe_to_server.is_connected()) send_vm_data();
 }
 
 // 화면 새로 고침
@@ -335,7 +537,7 @@ void refresh_AdministratorPage_MyGridChanges()
     dynamic_cast<Gtk::Label*>(widget["MyGridChanges::lb_refundable_v"])->set_text(dm.get_collectable_changes());
 }
 
-// 동전 갯수 서정
+// 동전 갯수 수정
 void edit_coin_num(int slot_number)
 {
     // 입력된 동전 갯수 구하기
@@ -356,6 +558,9 @@ void edit_coin_num(int slot_number)
     
     // 입력한 갯수가 기존 갯수보다 적을 때
     if (v < n) for (int i=n; i>v; i--) dm.pop_coin(slot_number);
+    
+    // 자판기 데이터 전송
+    if (pipe_to_server.is_connected()) send_vm_data();
 }
 
 // 라디오 버튼 활성화 확인

@@ -95,6 +95,7 @@ class AdministratorPage : public Gtk::Window
 {
 public:
     AdministratorPage(std::string name);
+    ~AdministratorPage();
     std::string name;   // 자판기 이름
     
 protected:

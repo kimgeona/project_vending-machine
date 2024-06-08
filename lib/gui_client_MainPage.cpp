@@ -203,7 +203,7 @@ bt5("관리자")
     widget["MyGridSidebar::bt5"] = &bt5;
     
     // signal 연결
-    bt4.signal_clicked().connect(sigc::mem_fun(dm, &data::DataManagement::purchase));
+    bt4.signal_clicked().connect(sigc::ptr_fun(purchase));
     bt4.signal_clicked().connect(sigc::ptr_fun(refresh_MainPage));
     bt5.signal_clicked().connect(sigc::ptr_fun(show_login_page));
 }
@@ -243,6 +243,22 @@ fm(860.0/510.0)
     
     // child 위젯 등록
     set_child(fm);
+    
+    // dispatcher 시그널 등록
+    dispatcher.connect(sigc::ptr_fun(check_socket));
+    
+    // Pipe에 dispatcher 연결
+    pipe_to_server.alert(dispatcher);
+}
+
+MainPage::~MainPage()
+{
+    // 데이터 관리자 상태 변경 및 저장
+    dm.state = "off";
+    dm.save();
+    
+    // 응용프로그램 종료 전 자판기 파일 보내기
+    if (pipe_to_server.is_connected()) send_vm_data();
 }
 
 

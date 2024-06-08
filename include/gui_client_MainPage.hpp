@@ -13,6 +13,10 @@
 extern data::DataManagement dm;
 extern std::map<std::string, Gtk::Widget*> widget;
 
+// 통신 모듈
+extern network::Pipe       pipe_to_server;
+extern Glib::Dispatcher    dispatcher;
+
 namespace gui_client
 {
 
@@ -97,6 +101,7 @@ class MainPage          : public Gtk::Window
 {
 public:
     MainPage();
+    ~MainPage();
 
 protected:
     MyFrameCenter fm;

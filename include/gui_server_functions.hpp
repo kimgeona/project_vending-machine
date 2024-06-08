@@ -7,6 +7,8 @@
 #include <filesystem>
 
 // 나의 라이브러리
+#include <data.hpp>
+#include <network.hpp>
 #include <gui_server_ListPage.hpp>
 #include <gui_server_AdministratorPage.hpp>
 
@@ -14,12 +16,23 @@
 extern std::map<std::string, data::DataManagement> dms;
 extern std::map<std::string, Gtk::Widget*>         widget;
 
+// 통신 모듈
+extern network::Pipe       pipe_to_client;
+extern Glib::Dispatcher    dispatcher;
+
 namespace gui_server
 {
 
 
-// ======== ListPage ========
+// ======== network ========
 
+// 자판기 파일 받기
+void recv_vm_data();
+
+// 소켓 확인하고 작업 실행
+void check_socket();
+
+// ======== ListPage ========
 
 // 데이터 관리자 파일들 찾아서 불러오기
 void update_DataManagement();

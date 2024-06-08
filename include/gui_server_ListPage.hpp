@@ -13,6 +13,10 @@
 extern std::map<std::string, data::DataManagement>  dms;
 extern std::map<std::string, Gtk::Widget*>          widget;
 
+// 통신 모듈
+extern network::Pipe       pipe_to_client;
+extern Glib::Dispatcher    dispatcher;
+
 namespace gui_server
 {
 

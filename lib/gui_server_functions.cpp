@@ -4,6 +4,90 @@ namespace gui_server
 {
 
 
+// ======== network ========
+
+// 자판기 파일 받기
+void recv_vm_data(std::string name)
+{
+    using namespace std::filesystem;
+    
+    // 자판기 데이터 파일 이름 받기
+    std::string file_name;
+    std::string file_name2;
+    
+    // 자판기 데이터 받기
+    std::string file_data;
+    std::string file_data2;
+    
+    try
+    {
+        // 자판기 데이터 파일 이름 받기
+        file_name = pipe_to_client.recv(name);
+        file_name2 = pipe_to_client.recv(name);
+        
+        // 자판기 데이터 받기
+        file_data = pipe_to_client.recv(name);
+        file_data2 = pipe_to_client.recv(name);
+    }
+    catch (const std::exception& e)
+    {
+        printf("|  연결 상황이 좋지 않아 파일 수신을 건너뜁니다.\n");
+        return;
+    }
+    
+    // 기존 파일 제거
+    if (exists(path(file_name))) remove(path(file_name));
+    if (exists(path(file_name2))) remove(path(file_name2));
+    
+    // 자판기 파일 저장
+    std::ofstream fout(file_name), fout2(file_name2);
+    if (!fout | !fout2)
+    {
+        throw std::runtime_error("gui_server::recv_vm_data() : 자판기("+ name +") 데이터 파일을 열 수 없습니다.");
+    }
+    fout << file_data;
+    fout2 << file_data2;
+    if (!fout | !fout2)
+    {
+        throw std::runtime_error("gui_server::recv_vm_data() : 자판기("+ name +") 데이터 파일을 쓰는중 오류가 발생했습니다.");
+    }
+    fout.close();
+    fout2.close();
+    if (!fout | !fout2)
+    {
+        throw std::runtime_error("gui_server::recv_vm_data() : 자판기("+ name +") 데이터 파일을 닫는중 오류가 발생했습니다.");
+    }
+}
+
+// 소켓 확인하고 작업 실행
+void check_socket()
+{
+    // 클라이언트 이름 구하기
+    std::string client_name = pipe_to_client.check_who_send_it();
+    
+    // 실행 동작 구하기
+    std::string command = pipe_to_client.recv(client_name);
+    
+    // 파일 수신
+    if (command == "file")
+    {
+        recv_vm_data(client_name);
+    }
+    
+    // 화면 새로 고침
+    if (command == "refresh")
+    {
+        update_DataManagement();
+        refresh_ListPage_MyListingScrolledWindow();
+    }
+    
+    // 콘솔 출력
+    if (command == "print")
+    {
+        printf("|  --> %s\n", pipe_to_client.recv(client_name).c_str());
+    }
+}
+
 // ======== ListPage ========
 
 // 데이터 관리자 파일들 찾아서 불러오기
@@ -58,19 +142,37 @@ void refresh_ListPage_MyListingScrolledWindow()
         
         // 버튼 레이블 생성
         std::string s = "";
-        s += "\nName : " + pair.second.name + "\n\n";   // 이름
-        s += "IP   : (나중에)\n";                 // 아이피
-        s += "Port : (나중에)\n";                 // 포트번호
-        s += "Update : 5분전\n";
+        
+        // 클라이언트와 연결 확인 후 버튼 레이블 생성
+        if (pipe_to_client.is_connected(pair.second.name) && pair.second.state == "on")
+        {
+            s += "\nName : " + pair.second.name + "\n\n";                              // 이름
+            s += "IP   : " + pipe_to_client.get_ip(pair.second.name) + "\n";    // 아이피주소
+            s += "Port : " + pipe_to_client.get_port(pair.second.name) + "\n";  // 포트번호
+        }
+        else
+        {
+            s += "\nName : " + pair.second.name + "\n\n";
+            s += "⸝⸝• ̫•⸝⸝\n";
+            s += "오프라인\n";
+        }
         
         // 버튼 생성, 저장
-        widget[id] = Gtk::make_managed<Gtk::Button>(s);
+        widget[id] = Gtk::make_managed<Gtk::Button>(s.c_str());
         
         // 버튼 설정
         dynamic_cast<Gtk::Button*>(widget[id])->set_expand();
         
         // 버튼 설정
-        if (pair.second.state == "off") dynamic_cast<Gtk::Button*>(widget[id])->set_sensitive(false);
+        if (pipe_to_client.is_connected(pair.second.name) && pair.second.state == "on")
+        {
+            dynamic_cast<Gtk::Button*>(widget[id])->set_sensitive(true);
+        }
+        else
+        {
+            dynamic_cast<Gtk::Button*>(widget[id])->set_sensitive(false);
+        }
+        
         
         // 버튼 이벤트 연결
         dynamic_cast<Gtk::Button*>(widget[id])->signal_clicked().connect(sigc::bind(sigc::ptr_fun(open_AdministratorPage), pair.second.name));
@@ -82,6 +184,7 @@ void refresh_ListPage_MyListingScrolledWindow()
         if (widget.find(pair.second.name+"::AdministratorPage") != widget.end())
         {
             refresh_AdministratorPage_MyGridSidebar(pair.second.name);
+            refresh_AdministratorPage_MyGridInventory(pair.second.name);
         }
         
         // 버튼 갯수 업데이트
@@ -122,12 +225,36 @@ void refresh_AdministratorPage_MyGridSidebar_id(std::string name)
     // 아이디 엔트리 새로 고침
     dynamic_cast<Gtk::Entry*>(widget[name + "::MyGridSettings::elb_id"])->set_placeholder_text(dms[name].get_id());
     dynamic_cast<Gtk::Entry*>(widget[name + "::MyGridSettings::elb_id"])->set_text("");
+    
+    // 엔트리 활성 비활성 여부
+    if (dms[name].state == "on")
+    {
+        dynamic_cast<Gtk::Entry*>(widget[name + "::MyGridSettings::elb_id"])->set_sensitive(true);
+        dynamic_cast<Gtk::Button*>(widget[name + "::MyGridSettings::bt_id"])->set_sensitive(true);
+    }
+    else
+    {
+        dynamic_cast<Gtk::Entry*>(widget[name + "::MyGridSettings::elb_id"])->set_sensitive(false);
+        dynamic_cast<Gtk::Button*>(widget[name + "::MyGridSettings::bt_id"])->set_sensitive(false);
+    }
 }
 void refresh_AdministratorPage_MyGridSidebar_pw(std::string name)
 {
     // 비밀번호 엔트리 새로 고침
     dynamic_cast<Gtk::Entry*>(widget[name + "::MyGridSettings::elb_pw"])->set_placeholder_text(dms[name].get_pw());
     dynamic_cast<Gtk::Entry*>(widget[name + "::MyGridSettings::elb_pw"])->set_text("");
+    
+    // 엔트리 활성 비활성 여부
+    if (dms[name].state == "on")
+    {
+        dynamic_cast<Gtk::Entry*>(widget[name + "::MyGridSettings::elb_pw"])->set_sensitive(true);
+        dynamic_cast<Gtk::Button*>(widget[name + "::MyGridSettings::bt_pw"])->set_sensitive(true);
+    }
+    else
+    {
+        dynamic_cast<Gtk::Entry*>(widget[name + "::MyGridSettings::elb_pw"])->set_sensitive(false);
+        dynamic_cast<Gtk::Button*>(widget[name + "::MyGridSettings::bt_pw"])->set_sensitive(false);
+    }
 }
 
 // 아이디 수정
@@ -136,8 +263,13 @@ void edit_id(std::string name)
     // 입력된 아이디 구하기
     std::string id = dynamic_cast<Gtk::Entry*>(widget[name + "::MyGridSettings::elb_id"])->get_text();
     
-    // 기존 아이디 변경
-    if (id != "") dms[name].set_id(id);
+    // 데이터 확인
+    if (id == "") return;
+    
+    // 클라이언트에게 수정 요청
+    pipe_to_client.send(name, "edit");
+    pipe_to_client.send(name, "id");
+    pipe_to_client.send(name, id);
 }
 
 // 비밀번호 수정
@@ -146,8 +278,13 @@ void edit_pw(std::string name)
     // 입력된 아이디 구하기
     std::string pw = dynamic_cast<Gtk::Entry*>(widget[name + "::MyGridSettings::elb_pw"])->get_text();
     
-    // 기존 아이디 변경
-    if (pw != "") dms[name].set_pw(pw);
+    // 데이터 확인
+    if (pw == "") return;
+    
+    // 클라이언트에게 수정 요청
+    pipe_to_client.send(name, "edit");
+    pipe_to_client.send(name, "pw");
+    pipe_to_client.send(name, pw);
 }
 
 // 라디오 버튼 활성화 확인
@@ -183,6 +320,16 @@ void refresh_AdministratorPage_MyGridInventory_name(std::string name)
     {
         // 음료 이름 엔트리 새로 고침
         dynamic_cast<Gtk::Entry*>(widget[name + "::MyGridInventory::en_na"])->set_placeholder_text("음료 이름");
+        dynamic_cast<Gtk::Entry*>(widget[name + "::MyGridInventory::en_na"])->set_text("");
+        dynamic_cast<Gtk::Entry*>(widget[name + "::MyGridInventory::en_na"])->set_sensitive(false);
+        
+        // 버튼들 새로고침
+        dynamic_cast<Gtk::Button*>(widget[name + "::MyGridInventory::bt_na"])->set_sensitive(false);
+    }
+    else if (dms[name].state == "off")
+    {
+        // 음료 이름 엔트리 새로 고침
+        dynamic_cast<Gtk::Entry*>(widget[name + "::MyGridInventory::en_na"])->set_placeholder_text(dms[name].get_drink_name(active));
         dynamic_cast<Gtk::Entry*>(widget[name + "::MyGridInventory::en_na"])->set_text("");
         dynamic_cast<Gtk::Entry*>(widget[name + "::MyGridInventory::en_na"])->set_sensitive(false);
         
@@ -230,6 +377,16 @@ void refresh_AdministratorPage_MyGridInventory_price(std::string name)
         // 버튼들 새로고침
         dynamic_cast<Gtk::Button*>(widget[name + "::MyGridInventory::bt_pr"])->set_sensitive(false);
     }
+    else if (dms[name].state == "off")
+    {
+        // 음료 이름 엔트리 새로 고침
+        dynamic_cast<Gtk::Entry*>(widget[name + "::MyGridInventory::en_pr"])->set_placeholder_text(dms[name].get_drink_price(active));
+        dynamic_cast<Gtk::Entry*>(widget[name + "::MyGridInventory::en_pr"])->set_text("");
+        dynamic_cast<Gtk::Entry*>(widget[name + "::MyGridInventory::en_pr"])->set_sensitive(false);
+        
+        // 버튼들 새로고침
+        dynamic_cast<Gtk::Button*>(widget[name + "::MyGridInventory::bt_pr"])->set_sensitive(false);
+    }
     else
     {
         // 음료 가격 엔트리 새로 고침
@@ -265,8 +422,14 @@ void edit_drink_name(std::string name)
     // 입력된 음료 이름 구하기
     std::string drink_name = dynamic_cast<Gtk::Entry*>(widget[name + "::MyGridInventory::en_na"])->get_text();
     
-    // 기존 음료 이름 변경
-    if (drink_name != "") dms[name].set_drink_name(b, drink_name);
+    // 데이터 확인
+    if (drink_name == "") return;
+    
+    // 클라이언트에게 수정 요청
+    pipe_to_client.send(name, "edit");
+    pipe_to_client.send(name, "drink_name");
+    pipe_to_client.send(name, drink_name);
+    pipe_to_client.send(name, std::to_string(b));
 }
 
 // 음료 가격 수정
@@ -278,8 +441,14 @@ void edit_drink_price(std::string name)
     // 입력된 음료 가격 구하기
     int drink_price = std::stoi(dynamic_cast<Gtk::Entry*>(widget[name + "::MyGridInventory::en_pr"])->get_text());
     
-    // 기존 음료 가격 변경
-    if (drink_price >= 0) dms[name].set_drink_price(b, drink_price);
+    // 데이터 확인
+    if (drink_price < 0)  return;
+    
+    // 클라이언트에게 수정 요청
+    pipe_to_client.send(name, "edit");
+    pipe_to_client.send(name, "drink_price");
+    pipe_to_client.send(name, std::to_string(drink_price));
+    pipe_to_client.send(name, std::to_string(b));
 }
 
 

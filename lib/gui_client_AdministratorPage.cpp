@@ -372,5 +372,11 @@ lb4("\n매출")
     lb4.set_justify(Gtk::Justification::LEFT);
 }
 
+AdministratorPage::~AdministratorPage()
+{
+    // 위젯에서 자신 제거
+    widget.erase("AdministratorPage");
+}
+
 
 }

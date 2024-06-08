@@ -197,5 +197,11 @@ lb2("\n음료 정보 및 재고")
     this->name = name;
 }
 
+AdministratorPage::~AdministratorPage()
+{
+    // 위젯에서 자신 제거
+    widget.erase(name + "::AdministratorPage");
+}
+
 
 }

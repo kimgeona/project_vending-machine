@@ -62,5 +62,11 @@ LoginPage::LoginPage()
     set_child(gd);
 }
 
+LoginPage::~LoginPage()
+{
+    // 위젯에서 자신 제거
+    widget.erase("LoginPage");
+}
+
 
 }

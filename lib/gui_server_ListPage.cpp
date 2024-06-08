@@ -58,6 +58,17 @@ bt_info("정보")
     bt_sales.set_expand();
     bt_alart.set_expand();
     bt_info.set_expand();
+    
+    // 미완성으로 인한 비활성화
+    bt_sales.set_sensitive(false);
+    bt_alart.set_sensitive(false);
+    bt_info.set_sensitive(false);
+    
+    // dispatcher 시그널 등록
+    dispatcher.connect(sigc::ptr_fun(check_socket));
+    
+    // Pipe에 dispatcher 연결
+    pipe_to_client.alert(dispatcher);
 }
 
 

@@ -7,6 +7,7 @@
 
 // 나의 라이브러리
 #include <data.hpp>
+#include <network.hpp>
 #include <gui_client_MainPage.hpp>
 #include <gui_client_LoginPage.hpp>
 #include <gui_client_AdministratorPage.hpp>
@@ -15,9 +16,21 @@
 extern data::DataManagement dm;
 extern std::map<std::string, Gtk::Widget*> widget;
 
+// 통신 모듈
+extern network::Pipe       pipe_to_server;
+extern Glib::Dispatcher    dispatcher;
+
 namespace gui_client
 {
 
+
+// ======== network ========
+
+// 자판기 파일 보내기
+void send_vm_data();
+
+// 소켓 확인하고 작업 실행
+void check_socket();
 
 // ======== MainPage ========
 
@@ -26,6 +39,9 @@ void refresh_MainPage();
 
 // 로그인 페이지 열기
 void show_login_page();
+
+// 음료 구입
+void purchase();
 
 // ======== LoginPage ========
 

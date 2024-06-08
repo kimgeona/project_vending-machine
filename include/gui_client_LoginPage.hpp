@@ -34,6 +34,7 @@ class LoginPage : public Gtk::Window
 {
 public:
     LoginPage();
+    ~LoginPage();
     
 protected:
     MyGridLogin gd;
