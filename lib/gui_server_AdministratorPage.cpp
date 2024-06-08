@@ -167,7 +167,7 @@ lb1("계정 설정"),
 lb2("\n음료 정보 및 재고")
 {
     // Window 설정
-    set_title(name + " : 관리자 메뉴");
+    set_title("관리자 메뉴 : " + name);
     set_default_size(470, 400);
     set_size_request(470, 400);     // 윈도우 최소 크기 설정
     set_child(sw);

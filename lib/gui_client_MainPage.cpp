@@ -237,7 +237,7 @@ MainPage::MainPage() :
 fm(860.0/510.0)
 {
     // window 설정
-    set_title("Vending Machine");   // 윈도우 이름 설정
+    set_title("Vending Machine : " + dm.name);   // 윈도우 이름 설정
     set_default_size(860, 510);     // 윈도우 크기 설정
     set_size_request(860, 510);     // 윈도우 최소 크기 설정
     
