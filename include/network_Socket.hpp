@@ -39,7 +39,7 @@ public:
     std::mutex socket_mtx;
     
     // 소켓 정보
-    bool info_block;
+    int info_time_out;
     
     // 소켓 상태
     bool state_sock;
@@ -68,7 +68,7 @@ public:
         sock_len = sizeof(sock_addr);
         
         // 소켓 정보 설정
-        info_block = false;
+        info_time_out = -1;
         
         // 소켓 상태 설정
         state_sock = false;
@@ -78,13 +78,13 @@ public:
         state_listen = false;
         state_use = false;
     }
-    Socket(const unsigned long IP, const unsigned short PORT, bool non_block=false)
+    Socket(const unsigned long IP, const unsigned short PORT, int time_out=5)
     {
         // 소켓 생성 및 초기화
         while ((sock = socket(AF_INET, SOCK_STREAM, 0)) == -1);
         
         // 소켓 블로킹 설정
-        if (non_block)
+        if (time_out == 0)
         {
             int count = 0;
             int flags = -1;
@@ -94,7 +94,7 @@ public:
                 // 현재 파일 속성 읽기
                 while ((flags = fcntl(sock, F_GETFL, 0)) == -1)
                 {
-                    if (count > 5) std::runtime_error("fcntl error 1");
+                    if (count++ > 5) throw std::runtime_error("fcntl error 1");
                     std::this_thread::sleep_for(std::chrono::milliseconds(500));
                 }
                 count = 0;
@@ -102,13 +102,13 @@ public:
                 // 논블로킹 모드로 변경
                 while (fcntl(sock, F_SETFL, flags | O_NONBLOCK) == -1)
                 {
-                    if (count > 4) std::runtime_error("fcntl error 2");
+                    if (count++ > 4) throw std::runtime_error("fcntl error 2");
                     std::this_thread::sleep_for(std::chrono::milliseconds(500));
                 }
                 count = 0;
                 
                 // 소켓 정보 업데이트
-                info_block = true;
+                info_time_out = time_out;
             }
             catch (const std::runtime_error& e)
             {
@@ -124,9 +124,52 @@ public:
                 else throw;
                 
                 // 소켓 정보 업데이트
-                info_block = false;
+                info_time_out = time_out = 5;
                 
                 printf("|   network::Socket() : 소켓을 블로킹으로 생성할 수 없어 그냥 생성합니다.");
+            }
+        }
+        
+        // 소켓 타임아웃 설정
+        if (time_out > 0)
+        {
+            struct timeval timeout;
+            timeout.tv_sec = time_out;
+            timeout.tv_usec = 0;
+            
+            try
+            {
+                // 소켓 수신 제한 시간 설정
+                if (setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof(timeout)) == -1)
+                {
+                    throw std::runtime_error("setsockopt error 1");
+                }
+                
+                // 소켓 송신 제한 시간 설정
+                if (setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (const char*)&timeout, sizeof(timeout)) == -1)
+                {
+                    throw std::runtime_error("setsockopt error 2");
+                }
+                
+                // 소켓 정보 업데이트
+                info_time_out = time_out;
+            }
+            catch (const std::runtime_error& e)
+            {
+                if (std::string(e.what())=="setsockopt error 1" || std::string(e.what())=="setsockopt error 2")
+                {
+                    // 소켓 닫기
+                    ::close(sock);
+                    
+                    // 소켓 재생성 및 초기화
+                    while ((sock = socket(AF_INET, SOCK_STREAM, 0)) == -1);
+                }
+                else throw;
+                
+                // 소켓 정보 업데이트
+                info_time_out = time_out = -1;
+                
+                printf("|   network::Socket() : 소켓의 타임아웃을 설정 할 수 없어 그냥 생성합니다.");
             }
         }
         
@@ -147,13 +190,13 @@ public:
         state_listen = false;
         state_use = false;
     }
-    Socket(const char* IP, const unsigned short PORT, bool non_block=false)
+    Socket(const char* IP, const unsigned short PORT, int time_out=5)
     {
         // 소켓 생성 및 초기화
         while ((sock = socket(AF_INET, SOCK_STREAM, 0)) == -1);
         
         // 소켓 블로킹 설정
-        if (non_block)
+        if (time_out == 0)
         {
             int count = 0;
             int flags = -1;
@@ -163,7 +206,7 @@ public:
                 // 현재 파일 속성 읽기
                 while ((flags = fcntl(sock, F_GETFL, 0)) == -1)
                 {
-                    if (count > 5) std::runtime_error("fcntl error 1");
+                    if (count++ > 5) throw std::runtime_error("fcntl error 1");
                     std::this_thread::sleep_for(std::chrono::milliseconds(500));
                 }
                 count = 0;
@@ -171,13 +214,13 @@ public:
                 // 논블로킹 모드로 변경
                 while (fcntl(sock, F_SETFL, flags | O_NONBLOCK) == -1)
                 {
-                    if (count > 4) std::runtime_error("fcntl error 2");
+                    if (count++ > 4) throw std::runtime_error("fcntl error 2");
                     std::this_thread::sleep_for(std::chrono::milliseconds(500));
                 }
                 count = 0;
                 
                 // 소켓 정보 업데이트
-                info_block = true;
+                info_time_out = time_out;
             }
             catch (const std::runtime_error& e)
             {
@@ -193,9 +236,52 @@ public:
                 else throw;
                 
                 // 소켓 정보 업데이트
-                info_block = false;
+                info_time_out = time_out = 5;
                 
                 printf("|   network::Socket() : 소켓을 블로킹으로 생성할 수 없어 그냥 생성합니다.");
+            }
+        }
+        
+        // 소켓 타임아웃 설정
+        if (time_out > 0)
+        {
+            struct timeval timeout;
+            timeout.tv_sec = time_out;
+            timeout.tv_usec = 0;
+            
+            try
+            {
+                // 소켓 수신 제한 시간 설정
+                if (setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof(timeout)) == -1)
+                {
+                    throw std::runtime_error("setsockopt error 1");
+                }
+                
+                // 소켓 송신 제한 시간 설정
+                if (setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (const char*)&timeout, sizeof(timeout)) == -1)
+                {
+                    throw std::runtime_error("setsockopt error 2");
+                }
+                
+                // 소켓 정보 업데이트
+                info_time_out = time_out;
+            }
+            catch (const std::runtime_error& e)
+            {
+                if (std::string(e.what())=="setsockopt error 1" || std::string(e.what())=="setsockopt error 2")
+                {
+                    // 소켓 닫기
+                    ::close(sock);
+                    
+                    // 소켓 재생성 및 초기화
+                    while ((sock = socket(AF_INET, SOCK_STREAM, 0)) == -1);
+                }
+                else throw;
+                
+                // 소켓 정보 업데이트
+                info_time_out = time_out = -1;
+                
+                printf("|   network::Socket() : 소켓의 타임아웃을 설정 할 수 없어 그냥 생성합니다.");
             }
         }
         
@@ -227,7 +313,7 @@ public:
         this->sock = other.sock;
         this->sock_addr = other.sock_addr;
         this->sock_len = other.sock_len;
-        this->info_block = other.info_block;
+        this->info_time_out = other.info_time_out;
         this->state_sock = other.state_sock;
         this->state_sock_addr = other.state_sock_addr;
         this->state_sock_len = other.state_sock_len;
@@ -250,7 +336,7 @@ public:
             this->sock = other.sock;
             this->sock_addr = other.sock_addr;
             this->sock_len = other.sock_len;
-            this->info_block = other.info_block;
+            this->info_time_out = other.info_time_out;
             this->state_sock = other.state_sock;
             this->state_sock_addr = other.state_sock_addr;
             this->state_sock_len = other.state_sock_len;
@@ -327,7 +413,7 @@ public:
             Socket new_sock;
             
             // client 소켓 받기
-            if (info_block)
+            if (info_time_out >= 0)
             {
                 if ((new_sock.sock = ::accept(this->sock, (struct sockaddr*)&new_sock.sock_addr, &new_sock.sock_len)) == -1)
                 {
@@ -380,34 +466,61 @@ public:
         
         if (state_sock && state_sock_addr && state_sock_len && !state_bind && !state_listen && !state_use)
         {
-            int count = 0;
-            while (true)
+            // 소켓 연결
+            if (info_time_out >= 0)
             {
                 if (::connect(sock, (struct sockaddr*)&sock_addr, sizeof(sock_addr)) == -1)
                 {
-                    // 2초 또는 10초 뒤에 다시 시도
-                    if (count++ < 30)   std::this_thread::sleep_for(std::chrono::seconds(2));
-                    else                std::this_thread::sleep_for(std::chrono::seconds(10));
-                    
-                    // 소켓 닫기
-                    ::close(sock);
-                    
-                    // 소켓 생성
-                    while ((sock = socket(AF_INET, SOCK_STREAM, 0)) == -1);
+                    // 소켓 상태 설정
+                    state_sock = false;
+                    state_sock_addr = false;
+                    state_sock_len = false;
+                    state_bind = false;
+                    state_listen = false;
+                    state_use = false;
                 }
-                else break;
+                else
+                {
+                    // 소켓 상태 설정
+                    state_sock = true;
+                    state_sock_addr = true;
+                    state_sock_len = true;
+                    state_bind = false;
+                    state_listen = false;
+                    state_use = true;
+                }
             }
-            
-            // 소켓 길이 초기화
-            sock_len = sizeof(sock_addr);
-            
-            // 소켓 상태 설정
-            state_sock = true;
-            state_sock_addr = true;
-            state_sock_len = true;
-            state_bind = false;
-            state_listen = false;
-            state_use = true;
+            else
+            {
+                int count = 0;
+                while (true)
+                {
+                    if (::connect(sock, (struct sockaddr*)&sock_addr, sizeof(sock_addr)) == -1)
+                    {
+                        // 2초 또는 10초 뒤에 다시 시도
+                        if (count++ < 30)   std::this_thread::sleep_for(std::chrono::seconds(2));
+                        else                std::this_thread::sleep_for(std::chrono::seconds(10));
+                        
+                        // 소켓 닫기
+                        ::close(sock);
+                        
+                        // 소켓 생성
+                        while ((sock = socket(AF_INET, SOCK_STREAM, 0)) == -1);
+                    }
+                    else break;
+                }
+                
+                // 소켓 길이 초기화
+                sock_len = sizeof(sock_addr);
+                
+                // 소켓 상태 설정
+                state_sock = true;
+                state_sock_addr = true;
+                state_sock_len = true;
+                state_bind = false;
+                state_listen = false;
+                state_use = true;
+            }
         }
         else
         {
